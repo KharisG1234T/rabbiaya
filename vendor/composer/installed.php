@@ -3,7 +3,7 @@
         'name' => 'codeigniter/framework',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '0fb2ed2d77c56d1710c2ec44a4c7a92d5143f8c6',
+        'reference' => '99d92ebca85d6ee66a1b40b2465e55d8d0a50ffb',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'codeigniter/framework' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '0fb2ed2d77c56d1710c2ec44a4c7a92d5143f8c6',
+            'reference' => '99d92ebca85d6ee66a1b40b2465e55d8d0a50ffb',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -108,6 +108,15 @@
             'install_path' => __DIR__ . '/../phpdocumentor/type-resolver',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'phpmailer/phpmailer' => array(
+            'pretty_version' => 'v6.9.1',
+            'version' => '6.9.1.0',
+            'reference' => '039de174cd9c17a8389754d3b877a2ed22743e18',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpmailer/phpmailer',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'phpspec/prophecy' => array(
             'pretty_version' => 'v1.10.3',

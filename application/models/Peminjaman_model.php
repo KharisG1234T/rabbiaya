@@ -10,31 +10,74 @@ class Peminjaman_model extends CI_Model
 		$this->load->database();
 	}
 
-	public function getAll($status)
+	public function getAll($status, $start, $length)
 	{
 		$this->db->select("peminjaman.*, user.name, cabang.nama_cabang, cb.nama_cabang as from_cb");
 		$this->db->from('peminjaman');
 		$this->db->join("user", 'user.id = peminjaman.id_user', 'inner');
 		$this->db->join("cabang", "cabang.id_cabang = peminjaman.id_cabang", "inner");
 		$this->db->join("cabang AS cb", "cb.id_area = peminjaman.from", "inner");
+
 		if ($this->session->userdata('role_id') != 1 && $this->session->userdata('role_id') != 2) {
 			$areas = $this->session->userdata("area");
 			$areaIds = [0];
 
-			foreach($areas as $area){
-				array_push($areaIds, (int)$area['area_id']);
+			foreach ($areas as $area) {
+				array_push($areaIds, (int) $area['area_id']);
 			}
 			$this->db->where_in('peminjaman.from', $areaIds);
 		}
+
 		if ($this->session->userdata('role_id') == 2) {
 			$this->db->where('user.id', $this->session->userdata('id'));
 		}
+
 		if ($status !== 'ALL') {
 			$this->db->where('peminjaman.status', $status);
 		}
+
+		// Tambahkan limit dan offset untuk server-side processing
+		$this->db->limit($length, $start);
+
 		$query = $this->db->get();
 		return $query->result_array();
 	}
+
+	public function getCountAll($status)
+	{
+		$this->db->from('peminjaman');
+		$this->db->join("user", 'user.id = peminjaman.id_user', 'inner');
+		$this->db->join("cabang", "cabang.id_cabang = peminjaman.id_cabang", "inner");
+		$this->db->join("cabang AS cb", "cb.id_area = peminjaman.from", "inner");
+
+		if ($this->session->userdata('role_id') != 1 && $this->session->userdata('role_id') != 2) {
+			$areas = $this->session->userdata("area");
+			$areaIds = [0];
+
+			foreach ($areas as $area) {
+				array_push($areaIds, (int) $area['area_id']);
+			}
+			$this->db->where_in('peminjaman.from', $areaIds);
+		}
+
+		if ($this->session->userdata('role_id') == 2) {
+			$this->db->where('user.id', $this->session->userdata('id'));
+		}
+
+		if ($status !== 'ALL') {
+			$this->db->where('peminjaman.status', $status);
+		}
+
+		return $this->db->count_all_results();
+	}
+
+	public function getCountFiltered($status)
+	{
+		// Jika Anda memiliki logika filter, implementasikan di sini
+		// Untuk sederhana, asumsikan sama dengan getCountAll
+		return $this->getCountAll($status);
+	}
+
 
 	function getDetail($id_peminjaman)
 	{

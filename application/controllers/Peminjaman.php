@@ -19,15 +19,31 @@ class Peminjaman extends CI_Controller
   {
       $data['title'] = 'List Peminjaman';
       $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-
-      $peminjamanData = $this->Peminjaman_model->getAll('ALL');
-
+  
+      $this->load->view('templates/admin_header', $data);
+      $this->load->view('templates/admin_sidebar');
+      $this->load->view('templates/admin_topbar', $data);
+      $this->load->view('peminjaman/index', $data);
+      $this->load->view('templates/admin_footer');
+  }
+  
+  public function datatable()
+  {
+      // Ambil parameter yang diperlukan oleh DataTables
+      $draw = intval($this->input->get("draw"));
+      $start = intval($this->input->get("start"));
+      $length = intval($this->input->get("length"));
+      $status = $this->input->get("status");
+  
+      // Dapatkan data dari model dengan server-side processing
+      $peminjamanData = $this->Peminjaman_model->getAll($status, $start, $length);
+  
       foreach ($peminjamanData as &$item) {
           if ($item['status'] == "PROCESS") {
               $item['keterangan_sku'] = $this->Peminjaman_model->checkSkuComplete($item['id_peminjaman']) ? 'Di Approve Oleh : ' : 'Belum Komplit Terjawab PM';
-
+  
               $userApprovalData = $this->Peminjaman_model->getUserApprovalByPeminjamanId($item['id_peminjaman']);
-
+  
               if ($userApprovalData) {
                   $userApprovals = [];
                   foreach ($userApprovalData as $userApproval) {
@@ -45,16 +61,21 @@ class Peminjaman extends CI_Controller
               $item['keterangan_sku'] = '';
           }
       }
+  
+      // Buat array untuk menyimpan data yang akan dikirimkan ke DataTables
+      $output = array(
+          "draw" => $draw,
+          "recordsTotal" => $this->Peminjaman_model->getCountAll($status),
+          "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status),
+          "data" => $peminjamanData
+      );
 
-      $data['peminjaman'] = $peminjamanData;
-
-      $this->load->view('templates/admin_header', $data);
-      $this->load->view('templates/admin_sidebar');
-      $this->load->view('templates/admin_topbar', $data);
-      $this->load->view('peminjaman/index', $data);
-      $this->load->view('templates/admin_footer');
+  
+      // Kirim data dalam format JSON
+      echo json_encode($output);
+      exit();
   }
-
+  
 
   public function new()
   {
