@@ -9,25 +9,24 @@ $user = $this->session->userdata();
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.6/js/jquery.dataTables.min.js"></script>
 <script>
-  $(document).ready(function () {
+  $(document).ready(function() {
     $('#dataTable').DataTable({
-      "processing": true,
-      "serverSide": true,
-      "ajax": "<?php echo site_url('Peminjaman/datatable') ?>",
-      "order": [[1, "desc"]], // Urutkan berdasarkan kolom ke-5 (tanggal) secara descending (terbaru ke yang lama)
-      "columns": [
-        { "data": "No" },
-        { "data": "Kode Pengajuan" },
-        { "data": "Peminjam" },
-        { "data": "Kepada Dinas" },
-        { "data": "Peminjaman Dari" },
-        { "data": "Tanggal Dibuat" },
-        { "data": "Closing Date" },
-        { "data": "Catatan" },
-        { "data": "Nomor SQ" },
-        { "data": "Status" },
-        { "data": "Keterangan Status" },
-        { "data": "Action" }
+        "processing": true,
+        "serverSide": true,
+        "ajax": "<?php echo site_url('datacontroller/datatable') ?>",
+        "columns": [
+            { "data": "no" },
+            { "data": "kode_pengajuan" },
+            { "data": "name" },
+            { "data": "dinas" },
+            { "data": "from_cb" },
+            { "data": "date" },
+            { "data": "closingdate" },
+            { "data": "note" },
+            { "data": "nosq" },
+            { "data": "status" },
+            { "data": "keterangan_sku" },
+            { "data": "actions" }
       ]
     });
   });
