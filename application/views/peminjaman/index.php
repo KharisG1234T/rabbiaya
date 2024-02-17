@@ -11,22 +11,60 @@ $user = $this->session->userdata();
 <script>
   $(document).ready(function() {
     $('#dataTable').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ajax": "<?php echo site_url('datacontroller/datatable') ?>",
-        "columns": [
-            { "data": "no" },
-            { "data": "kode_pengajuan" },
-            { "data": "name" },
-            { "data": "dinas" },
-            { "data": "from_cb" },
-            { "data": "date" },
-            { "data": "closingdate" },
-            { "data": "note" },
-            { "data": "nosq" },
-            { "data": "status" },
-            { "data": "keterangan_sku" },
-            { "data": "actions" }
+      "processing": true,
+      "serverSide": true,
+      "ajax": "<?php echo site_url('peminjaman/datatable') ?>",
+      "columns": [
+        {
+          "data": "kode_pengajuan"
+        },
+        {
+          "data": "name"
+        },
+        {
+          "data": "dinas"
+        },
+        {
+          "data": "from_cb"
+        },
+        {
+          "data": "date"
+        },
+        {
+          "data": "closingdate"
+        },
+        {
+          "data": "note"
+        },
+        {
+          "data": "nosq"
+        },
+        {
+          "data": "status"
+        },
+        {
+          "data": null,
+          "render": function(data, type, row) {
+            // Menggabungkan nilai dari kolom userApprovals dan keterangan_sku
+            var combinedData = row.keterangan_sku + ' ' + row.userApprovals;
+
+            // Mengembalikan nilai gabungan
+            return combinedData;
+          }
+        },
+        {
+          "data": null,
+          "render": function(data, type, row) {
+            var idPeminjaman = row.id_peminjaman;
+
+            // Menggabungkan nilai dari kolom userApprovals dan keterangan_sku
+            var combinedData = ` <a class="badge badge-primary" style="font-size:14px;" href="<?= site_url('peminjaman/detail/${idPeminjaman}'); ?>"><i class="fas fa fa-eye"></i> Detail</a>`;
+
+            // Mengembalikan nilai gabungan
+            return combinedData;
+          }
+        },
+        // { "data": "actions" }
       ]
     });
   });
@@ -61,7 +99,6 @@ $user = $this->session->userdata();
         <table class="table table-bordered table-hover table-striped" id="dataTable" width="100%" cellspacing="0">
           <thead class="thead-dark">
             <tr>
-              <th>No</th>
               <th>Kode Pengajuan</th>
               <th>Peminjam</th>
               <th>Kepada Dinas</th>
@@ -84,6 +121,8 @@ $user = $this->session->userdata();
   <!-- /.container-fluid -->
 
 </div>
+
+
 <!-- End of Main Content -->
 
 <!-- modal delete -->
