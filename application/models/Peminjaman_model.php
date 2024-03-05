@@ -11,25 +11,13 @@ class Peminjaman_model extends CI_Model
 	}
 
 	public function getData($start, $length)
-    {
-        $this->db->limit($length, $start);
-        $query = $this->db->get("peminjaman");
-        return $query->result();
-    }
+	{
+		$this->db->limit($length, $start);
+		$query = $this->db->get("peminjaman");
+		return $query->result();
+	}
 
-    public function getCountAll()
-    {
-        return $this->db->count_all("peminjaman");
-    }
-
-    public function getCountFiltered()
-    {
-        // Jika Anda memiliki logika filter, implementasikan di sini
-        // Untuk sederhana, asumsikan sama dengan getCountAll
-        return $this->getCountAll();
-    }
-
-	public function getAll($status, $start, $length, $order_by = 'kode_pengajuan', $order_direction = 'asc')
+	public function getCountAll($status = "ALL", $searchValue = "", $tgl_awal = "", $tgl_akhir = "", $isArchieve = false)
 	{
 		$this->db->select("peminjaman.*, user.name, cabang.nama_cabang, cb.nama_cabang as from_cb");
 		$this->db->from('peminjaman');
@@ -55,52 +43,101 @@ class Peminjaman_model extends CI_Model
 			$this->db->where('peminjaman.status', $status);
 		}
 
+		if($isArchieve){
+			$this->db->where('peminjaman.deleted_at !=', NULL);
+		}else{
+			// filter data no softdeleted
+			$this->db->where('peminjaman.deleted_at IS NULL');
+		}
+
+		if ($searchValue && $searchValue != "") {
+			$this->db->group_start();
+			$this->db->like('user.name', $searchValue);
+			$this->db->or_like('peminjaman.kode_pengajuan', $searchValue);
+			$this->db->or_like('peminjaman.dinas', $searchValue);
+			$this->db->group_end();
+		}
+
+
+		if ($tgl_awal != "" && $tgl_akhir != "") {
+			$this->db->group_start();
+			$this->db->where('date >=', $tgl_awal);
+			$this->db->where('date <=', $tgl_akhir);
+			$this->db->group_end();
+		}
+
+		// return $this->db->count_all("peminjaman");
+		return $this->db->count_all_results(); // count with filtered
+	}
+
+	public function getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve = false)
+	{
+		// Jika Anda memiliki logika filter, implementasikan di sini
+		// Untuk sederhana, asumsikan sama dengan getCountAll
+		return $this->getCountAll($status, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve);
+	}
+
+	public function getAll($status, $start, $length, $order_by = 'kode_pengajuan', $order_direction = 'asc', $searchValue = "", $tgl_awal = "", $tgl_akhir = "", $isArchieve = false)
+	{
+		$this->db->select("peminjaman.*, user.name, cabang.nama_cabang, cb.nama_cabang as from_cb");
+		$this->db->from('peminjaman');
+		$this->db->join("user", 'user.id = peminjaman.id_user', 'inner');
+		$this->db->join("cabang", "cabang.id_cabang = peminjaman.id_cabang", "inner");
+		$this->db->join("cabang AS cb", "cb.id_area = peminjaman.from", "inner");
+
+		if ($this->session->userdata('role_id') != 1 && $this->session->userdata('role_id') != 2) {
+			$areas = $this->session->userdata("area");
+			$areaIds = [0];
+
+			foreach ($areas as $area) {
+				array_push($areaIds, (int) $area['area_id']);
+			}
+			$this->db->where_in('peminjaman.from', $areaIds);
+		}
+
+		if ($this->session->userdata('role_id') == 2) {
+			$this->db->where('user.id', $this->session->userdata('id'));
+		}
+
+		if ($status !== 'ALL') {
+			$this->db->where('peminjaman.status', $status);
+		}
+
+		if($isArchieve){
+			$this->db->where('peminjaman.deleted_at !=', NULL);
+		}else{
+			// filter data no softdeleted
+			$this->db->where('peminjaman.deleted_at IS NULL');
+		}
+
+		if ($searchValue && $searchValue != "") {
+			$this->db->group_start();
+			$this->db->like('user.name', $searchValue);
+			$this->db->or_like('peminjaman.kode_pengajuan', $searchValue);
+			$this->db->or_like('peminjaman.dinas', $searchValue);
+			$this->db->group_end();
+		}
+
+		if ($tgl_awal != "" && $tgl_akhir != "") {
+			$this->db->group_start();
+			$this->db->where('date >=', $tgl_awal);
+			$this->db->where('date <=', $tgl_akhir);
+			$this->db->group_end();
+		}
+
 		// Tambahkan sorting berdasarkan kode_pengajuan
 		$this->db->order_by($order_by, $order_direction);
 
 		// Tambahkan limit dan offset untuk server-side processing
-		$this->db->limit($length, $start);
+		if (is_int($start) && is_int($length)) {
+			$this->db->limit($length, $start);
+		}
 
+		// print_r($this->db->get_compiled_select()); 
+		// die;
 		$query = $this->db->get();
 		return $query->result_array();
 	}
-
-
-	// public function getCountAll($status)
-	// {
-	// 	$this->db->from('peminjaman');
-	// 	$this->db->join("user", 'user.id = peminjaman.id_user', 'inner');
-	// 	$this->db->join("cabang", "cabang.id_cabang = peminjaman.id_cabang", "inner");
-	// 	$this->db->join("cabang AS cb", "cb.id_area = peminjaman.from", "inner");
-
-	// 	if ($this->session->userdata('role_id') != 1 && $this->session->userdata('role_id') != 2) {
-	// 		$areas = $this->session->userdata("area");
-	// 		$areaIds = [0];
-
-	// 		foreach ($areas as $area) {
-	// 			array_push($areaIds, (int) $area['area_id']);
-	// 		}
-	// 		$this->db->where_in('peminjaman.from', $areaIds);
-	// 	}
-
-	// 	if ($this->session->userdata('role_id') == 2) {
-	// 		$this->db->where('user.id', $this->session->userdata('id'));
-	// 	}
-
-	// 	if ($status !== 'ALL') {
-	// 		$this->db->where('peminjaman.status', $status);
-	// 	}
-
-	// 	return $this->db->count_all_results();
-	// }
-
-	// public function getCountFiltered($status)
-	// {
-	// 	// Jika Anda memiliki logika filter, implementasikan di sini
-	// 	// Untuk sederhana, asumsikan sama dengan getCountAll
-	// 	return $this->getCountAll($status);
-	// }
-
 
 	function getDetail($id_peminjaman)
 	{
@@ -140,22 +177,22 @@ class Peminjaman_model extends CI_Model
 		return $this->db->get_where('peminjaman', ['id_peminjaman' => $id_peminjaman])->row_array();
 	}
 
-	public function checkSkuComplete($id_peminjaman) 
+	public function checkSkuComplete($id_peminjaman)
 	{
-    $query = $this->db->where('id_peminjaman', $id_peminjaman)
-                      ->where('status', 'PROCESS')
-                      ->get('peminjaman');
+		$query = $this->db->where('id_peminjaman', $id_peminjaman)
+			->where('status', 'PROCESS')
+			->get('peminjaman');
 
-    if ($query->num_rows() > 0) {
-        // SKU dalam proses, periksa SKU di barangpeminjaman
-        $queryBarang = $this->db->where('id_peminjaman', $id_peminjaman)
-                               ->where('sku', 'N/A')
-                               ->get('barangpeminjaman');
+		if ($query->num_rows() > 0) {
+			// SKU dalam proses, periksa SKU di barangpeminjaman
+			$queryBarang = $this->db->where('id_peminjaman', $id_peminjaman)
+				->where('sku', 'N/A')
+				->get('barangpeminjaman');
 
-        return $queryBarang->num_rows() == 0;
-    }
+			return $queryBarang->num_rows() == 0;
+		}
 
-    return false;
+		return false;
 	}
 
 
@@ -176,9 +213,30 @@ class Peminjaman_model extends CI_Model
 
 	public function delete($id_peminjaman)
 	{
-		$this->db->delete('userapproval', ['id_peminjaman' => $id_peminjaman]);
-		$this->db->delete('barangpeminjaman', ['id_peminjaman' => $id_peminjaman]);
-		$this->db->delete('peminjaman', ['id_peminjaman' => $id_peminjaman]);
+
+		$data["deleted_at"] =  date('Y-m-d');
+
+		$this->db->where('id_peminjaman', $id_peminjaman);
+		$this->db->update('peminjaman', $data);
+
+		$this->db->where('id_peminjaman', $id_peminjaman);
+		$this->db->update('barangpeminjaman', $data);
+
+		$this->db->where('id_peminjaman', $id_peminjaman);
+		$this->db->update('userapproval', $data);
+	}
+
+	public function restore($id_peminjaman){
+		$data["deleted_at"] =  NULL;
+
+		$this->db->where('id_peminjaman', $id_peminjaman);
+		$this->db->update('peminjaman', $data);
+
+		$this->db->where('id_peminjaman', $id_peminjaman);
+		$this->db->update('barangpeminjaman', $data);
+
+		$this->db->where('id_peminjaman', $id_peminjaman);
+		$this->db->update('userapproval', $data);
 	}
 
 	public function generateKodePengajuan($peminjamanId)
@@ -190,29 +248,29 @@ class Peminjaman_model extends CI_Model
 
 
 
-    public function savekp($kode_pengajuan)
-    {
-        // Generate kode pengajuan baru.
-        $newKodePengajuan = $this->generateKodePengajuan();
+	public function savekp($kode_pengajuan)
+	{
+		// Generate kode pengajuan baru.
+		$newKodePengajuan = $this->generateKodePengajuan();
 
-        // Set kode pengajuan dalam data.
-        $kode_pengajuan['kode_pengajuan'] = $newKodePengajuan;
+		// Set kode pengajuan dalam data.
+		$kode_pengajuan['kode_pengajuan'] = $newKodePengajuan;
 
-        $this->db->trans_start(); // Memulai transaksi database
+		$this->db->trans_start(); // Memulai transaksi database
 
-        // Simpan data ke tabel peminjaman
-        $this->db->insert('peminjaman', $kode_pengajuan);
+		// Simpan data ke tabel peminjaman
+		$this->db->insert('peminjaman', $kode_pengajuan);
 
-        $insert_id = $this->db->insert_id(); // Ambil ID dari data yang baru disimpan
+		$insert_id = $this->db->insert_id(); // Ambil ID dari data yang baru disimpan
 
-        $this->db->trans_complete(); // Selesaikan transaksi database
+		$this->db->trans_complete(); // Selesaikan transaksi database
 
-        if ($this->db->trans_status() === FALSE) {
-            return false; // Transaksi gagal
-        } else {
-            return $insert_id; // Transaksi berhasil
-        }
-    }
+		if ($this->db->trans_status() === FALSE) {
+			return false; // Transaksi gagal
+		} else {
+			return $insert_id; // Transaksi berhasil
+		}
+	}
 
 	public function getUserApprovalByPeminjamanId($id_peminjaman)
 	{
@@ -220,6 +278,4 @@ class Peminjaman_model extends CI_Model
 		$this->db->where('id_peminjaman', $id_peminjaman);
 		return $this->db->get('userapproval')->result_array();
 	}
-
-
 }

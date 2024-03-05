@@ -3,77 +3,10 @@ $user = $this->session->userdata();
 ?>
 
 <!-- Tambahkan link CSS DataTables -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.6/css/jquery.dataTables.min.css">
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/2.0.1/css/dataTables.bootstrap4.min.css"> -->
 
-<!-- Tambahkan link JavaScript DataTables -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.6/js/jquery.dataTables.min.js"></script>
-<script>
-  $(document).ready(function() {
-    $('#dataTable').DataTable({
-      "processing": true,
-      "serverSide": true,
-      "ajax": "<?php echo site_url('peminjaman/datatable') ?>",
-      "columns": [
-        {
-          "data": "kode_pengajuan"
-        },
-        {
-          "data": "name"
-        },
-        {
-          "data": "dinas"
-        },
-        {
-          "data": "from_cb"
-        },
-        {
-          "data": "date"
-        },
-        {
-          "data": "closingdate"
-        },
-        {
-          "data": "note"
-        },
-        {
-          "data": "nosq"
-        },
-        {
-          "data": "status"
-        },
-        {
-          "data": null,
-          "render": function(data, type, row) {
-            // Menggabungkan nilai dari kolom userApprovals dan keterangan_sku
-            var combinedData = row.keterangan_sku + ' ' + row.userApprovals;
+<link href="<?= base_url('assets/') ?>vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
-            // Mengembalikan nilai gabungan
-            return combinedData;
-          }
-        },
-        {
-          "data": null,
-          "render": function(data, type, row) {
-            var idPeminjaman = row.id_peminjaman;
-
-            // Menggabungkan nilai dari kolom userApprovals dan keterangan_sku
-            var combinedData = ` <a class="badge badge-primary" style="font-size:14px;" href="<?= site_url('peminjaman/detail/${idPeminjaman}'); ?>"><i class="fas fa fa-eye"></i> Detail</a>`;
-
-            // Mengembalikan nilai gabungan
-            return combinedData;
-          }
-        },
-        // { "data": "actions" }
-      ]
-    });
-  });
-
-  function deleteConfirm(url) {
-    $('#btn-delete').attr('href', url);
-    $('#deleteModal').modal();
-  }
-</script>
 
 <!-- Begin Page Content -->
 <div class="container-fluid">
@@ -94,11 +27,53 @@ $user = $this->session->userdata();
         <?php } ?>
       </h6>
     </div>
+    <div class="card-header">
+      <div class="card-head-row">
+        <div style="width: 100%;">
+          <!-- <form class="navbar-left navbar-form mr-md-1" id="formFilter"> -->
+          <div class="row">
+
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="fTglAwal">Tanggal Awal</label>
+                <input class="form-control datepicker" id="fTglAwal" type="date" name="fTglAwal" placeholder="Enter Start Date" />
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="fTglAkhir">Tanggal Akhir</label>
+                <input class="form-control datepicker" id="fTglAkhir" type="date" name="fTglAkhir" placeholder="Enter End Date" />
+              </div>
+            </div>
+            <?php if ($status == "ALL") { ?>
+              <div class="col-md-3">
+                <div class="form-group"><label for="fStatus">Status</label><select class="form-control" id="fStatus" name="fStatus">
+                    <option value="ALL">All</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="PROCESS">Proses</option>
+                    <option value="SUCCESS">Sukses</option>
+                    <option value="REJECTED">Di Tolak</option>
+                  </select>
+                </div>
+              </div>
+            <?php } ?>
+            <div class="col-md-3">
+              <div class="pt-3">
+                <button class="mt-3 btn btn-md btn-success mr-3" id="btn-submit" onclick="return filter()" type="submit">Submit </button>
+                <button class="mt-3 btn btn-md btn-primary mr-3" id="btn-submit" onclick="return exportExcel()" type="submit">Export to Excel </button>
+              </div>
+            </div>
+          </div>
+          <!-- </form> -->
+        </div>
+      </div>
+    </div>
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table table-bordered table-hover table-striped" id="dataTable" width="100%" cellspacing="0">
+        <table class="table table-bordered table-hover table-striped" id="peminjamanTable" width="100%" cellspacing="0">
           <thead class="thead-dark">
             <tr>
+              <th>Action</th>
               <th>Kode Pengajuan</th>
               <th>Peminjam</th>
               <th>Kepada Dinas</th>
@@ -109,7 +84,6 @@ $user = $this->session->userdata();
               <th>Nomor SQ</th>
               <th>Status</th>
               <th>Keterangan Status</th>
-              <th>Action</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -124,22 +98,114 @@ $user = $this->session->userdata();
 
 
 <!-- End of Main Content -->
+<!-- Tambahkan link JavaScript DataTables dan DataTables Buttons -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="<?= base_url('assets/') ?>vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="<?= base_url('assets/') ?>vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
-<!-- modal delete -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Apa anda yakin ?</h5>
-        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">Data yg dihapus tidak dapat dipulihkan !</div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
-        <a id="btn-delete" class="btn btn-danger" href="#">Hapus</a>
-      </div>
-    </div>
-  </div>
-</div>
+
+
+<script>
+  let dataTable;
+
+
+  $(function() {
+    let payload = {
+      status: '<?= $status ?>'
+    }
+    renderTable($.param(payload))
+  })
+
+  function renderTable(filter) {
+    let url = "<?php echo site_url('peminjaman/datatable') ?>";
+
+    if (filter) url += '?' + filter
+    dataTable = $('#peminjamanTable').DataTable({
+      processing: true,
+      serverSide: true,
+      responsive: true,
+      paging: true,
+      "ajax": url,
+      "oLanguage": {
+        "sSearch": "CARI KODE PENGAJUAN : "
+      },
+      "order": [
+        [0, "desc"] // Set default sorting direction to "desc" for the first column
+      ],
+      "columns": [{
+          "data": "action"
+        },
+        {
+          "data": "kode_pengajuan"
+        },
+        {
+          "data": "name"
+        },
+        {
+          "data": "dinas"
+        },
+        {
+          "data": "from_cb"
+        },
+        {
+          "data": "date"
+        },
+        {
+          "data": "closingdate"
+        },
+        {
+          "data": "note",
+          // "width": "550px"
+        },
+        {
+          "data": "nosq"
+        },
+        {
+          "data": "status"
+        },
+        {
+          "data": null,
+          "render": function(data, type, row) {
+            // Menggabungkan nilai dari kolom userApprovals dan keterangan_sku
+            var combinedData = row.keterangan_sku + ' ' + row.userApprovals;
+
+            // Mengembalikan nilai gabungan
+            return combinedData;
+          }
+        },
+      ],
+    });
+  };
+
+  function filter() {
+    let status = "<?= $status ?>"
+
+    // yang boleh ada filter by status hanya di halaman index (default staus ALL)
+    if (status == "ALL") {
+      status = $("#fStatus").val()
+    }
+    let payload = {
+      tgl_awal: $("#fTglAwal").val(),
+      tgl_akhir: $("#fTglAkhir").val(),
+      status: status
+    }
+
+    dataTable.clear();
+    dataTable.destroy();
+    renderTable($.param(payload))
+  }
+
+  function exportExcel() {
+    let status = "<?= $status ?>"
+    if (status == "ALL") {
+      status = $("#fStatus").val()
+    }
+    let payload = {
+      tgl_awal: $("#fTglAwal").val(),
+      tgl_akhir: $("#fTglAkhir").val(),
+      status: status
+    }
+    window.location.href = "export_excel?" + $.param(payload)
+  }
+
+</script>

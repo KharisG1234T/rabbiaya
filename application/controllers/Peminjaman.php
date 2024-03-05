@@ -19,6 +19,7 @@ class Peminjaman extends CI_Controller
   {
     $data['title'] = 'List Peminjaman';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
+    $data['status'] = 'ALL';
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
@@ -27,67 +28,188 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_footer');
   }
 
-  public function datatable()
+  function archieve()
   {
-        // Ambil parameter yang diperlukan oleh DataTables
-      $draw = intval($this->input->get("draw"));
-      $start = intval($this->input->get("start"));
-      $length = intval($this->input->get("length"));
-      $status = 'ALL';//$this->input->get("status");
-      $order_by = 'kode_pengajuan';  // Kolom untuk sorting
-      $order_direction = 'desc';      // Arah sorting
+    $data['title'] = 'List Archieve Peminjaman';
+    $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
+    $data['status'] = 'ALL';
 
-      // Dapatkan data dari model dengan penambahan sorting
-      $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction);
-      $outputData = [];
+    $this->load->view('templates/admin_header', $data);
+    $this->load->view('templates/admin_sidebar');
+    $this->load->view('templates/admin_topbar', $data);
+    $this->load->view('peminjaman/archieve', $data);
+    $this->load->view('templates/admin_footer');
+  }
+
+  public function export_excel()
+  {
+    $start = false;
+    $length = false;
+    $tgl_awal = $this->input->get('tgl_awal') ?? "";
+    $tgl_akhir = $this->input->get('tgl_akhir') ?? "";
+    $status = $this->input->get("status");
+    if ($status == "") {
+      $status = "ALL";
+    }
+
+    $order_by = 'kode_pengajuan';  // Kolom untuk sorting
+    $order_direction = 'desc';
+    $searchValue = '';
+
+    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir);
+    $data = $this->_persingData($data);
+
+    $this->load->view("peminjaman/export", [
+      'tgl_awal' => $tgl_awal,
+      'tgl_akhir' => $tgl_akhir,
+      'data' => $data
+    ]);
+  }
+
+  private function _persingData($data, $isArchieve = false)
+  {
+    $outputData = [];
 
     foreach ($data as $idx => $item) {
+      $action = '';
       // Konversi objek $item ke array (jika belum)
       $itemArray = (array)$item;
 
       $itemArray['no'] = $idx + 1;
-      // $itemArray['keterangan'] = $itemArray['status'] == "PENDING" ? 'PM Belum Mengisi SKU' : ($itemArray['status'] == "PROCESS" ? $itemArray['keterangan_sku'] : ($itemArray['status'] == "SUCCESS" ? 'Pengajuan Selesai, Telah di Setujui Oleh : ' : ''));
       switch ($itemArray['status']) {
         case "PROCESS":
-            $itemArray['keterangan_sku'] = $this->Peminjaman_model->checkSkuComplete($itemArray['id_peminjaman']) ? 'Di Approve Oleh : ' : 'Belum Komplit Terjawab PM';
+          $itemArray['keterangan_sku'] = $this->Peminjaman_model->checkSkuComplete($itemArray['id_peminjaman']) ? 'Di Approve Oleh : ' : 'Belum Komplit Terjawab PM';
 
-            $userApprovalData = $this->Peminjaman_model->getUserApprovalByPeminjamanId($itemArray['id_peminjaman']);
+          $userApprovalData = $this->Peminjaman_model->getUserApprovalByPeminjamanId($itemArray['id_peminjaman']);
 
-            if ($userApprovalData) {
-                $userApprovals = [];
-                foreach ($userApprovalData as $userApproval) {
-                    $useracc = $this->Userapproval_model->getUserById($userApproval['id_user']);
-                    $statusBadge = ($userApproval['status'] === 'APPROVE') ? 'badge-success' : 'badge-warning';
-                    $userApprovals[] = '<span class="badge ' . $statusBadge . '">' . $useracc['name'] . '</span>';
-                }
-                $itemArray['userApprovals'] = implode(' ', $userApprovals);
-            } else {
-                $itemArray['userApprovals'] = 'Belum Komplit Terjawab PM';
+          if ($userApprovalData) {
+            $userApprovals = [];
+            foreach ($userApprovalData as $userApproval) {
+              $useracc = $this->Userapproval_model->getUserById($userApproval['id_user']);
+              $statusBadge = ($userApproval['status'] === 'APPROVE') ? 'badge-success' : 'badge-warning';
+              $userApprovals[] = '<span class="badge ' . $statusBadge . '">' . $useracc['name'] . '</span>';
             }
-            break;
+            $itemArray['userApprovals'] = implode(' ', $userApprovals);
+          } else {
+            $itemArray['userApprovals'] = 'Belum Komplit Terjawab PM';
+          }
+          break;
         case "SUCCESS":
-            $itemArray['keterangan_sku'] = "<small class='badge badge-success'>Pengajuan Selesai</small>";
-            $itemArray['userApprovals'] = "<small class='badge badge-success'>Pengajuan Selesai</small>";
-            break;
+          $itemArray['keterangan_sku'] = "<small class='badge badge-success'>Pengajuan Selesai</small>";
+          $itemArray['userApprovals'] = "<small class='badge badge-success'></small>";
+          break;
+        case "PENDING": // Tambahkan case untuk status "PENDING"
+          $itemArray['keterangan_sku'] = "<small class='badge badge-warning'>Menunggu Persetujuan</small>";
+          $itemArray['userApprovals'] = "<small class='badge badge-warning'></small>";
+          break;
         default:
-            $itemArray['keterangan_sku'] = "<small class='badge badge-danger'>Di Tolak</small>";
-            $itemArray['userApprovals'] = "<small class='badge badge-danger'>Di Tolak</small>";
-            break;
+          $itemArray['keterangan_sku'] = "<small class='badge badge-danger'>Di Tolak</small>";
+          $itemArray['userApprovals'] = "<small class='badge badge-danger'></small>";
+          break;
+      }
+
+      // code untuk button action
+      $action .= '<div class="dropdown show">';
+      $action .= '<a class="btn btn-sm bg-primary text-white dropdown-toggle" href="#" role="button" id="dropdownAction" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+      $action .= 'Action';
+      $action .= '</a>';
+      $action .= '<div class="dropdown-menu" aria-labelledby="dropdownAction">';
+
+      if ($isArchieve) {
+        // btn action for list archieve data
+        if ($this->session->userdata("role_id") == 1) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/restore/') . $itemArray['id_peminjaman'] . '" onclick="return confirm(' . "'Anda yakin ingin me-restore data ini?'" . ')"><i class="fas fa fa-recycle"></i>&nbsp;&nbsp; Restore</a>';
+        }
+      } else {
+        // btn action for list actived data
+
+        // Menggabungkan nilai dari kolom userApprovals dan keterangan_sku
+        $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/detail/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-eye"></i>&nbsp;&nbsp; Detail</a>';
+
+        // Admin atau Sales
+        if (in_array($this->session->userdata('role_id'), array(1)) || ($itemArray["status"] == "PENDING" && in_array($this->session->userdata('role_id'), array(1, 2)))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/edit/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-pen"></i>&nbsp;&nbsp; Perbarui</a>';
+        }
+
+        // Admin, PM, atau PM Manager
+        if (in_array($this->session->userdata('role_id'), array(1)) || ($itemArray["status"] == "PENDING" || $itemArray["status"] == "PROCESS") && in_array($this->session->userdata('role_id'), array(3, 8))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/process/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-file"></i>&nbsp;&nbsp; Update SKU</a>';
+        }
+
+        // Admin atau CS
+        if (in_array($this->session->userdata('role_id'), array(1, 9))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/editcs/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-tags"></i>&nbsp;&nbsp; Update No SQ</a>';
+        }
+
+        // Admin atau Purchasing
+        if (in_array($this->session->userdata('role_id'), array(1, 10))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/editpurc/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-tags"></i>&nbsp;&nbsp; Update No PO</a>';
+        }
+
+        // Bukan Sales dan PM
+        if ($itemArray["status"] == "PROCESS" && in_array($this->session->userdata('role_id'), array(4, 5, 6, 7, 8))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/approve/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-check-double"></i>&nbsp;&nbsp; Approve</a>';
+        }
+
+        // Bukan Sales dan PM
+        if ($itemArray["status"] == "PROCESS" && in_array($this->session->userdata('role_id'), array(1, 2, 3, 8, 9, 10))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/reject/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-minus"></i>&nbsp;&nbsp; Tolak</a>';
+        }
+
+        // Admin
+        if ($itemArray["status"] == "REJECTED" && in_array($this->session->userdata('role_id'), array(1))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/unreject/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-recycle"></i>&nbsp;&nbsp; Batal Tolak</a>';
+        }
+
+        // Admin atau Sales
+        if ($itemArray["status"] == "PENDING" && in_array($this->session->userdata('role_id'), array(1, 2))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/delete/') . $itemArray['id_peminjaman'] . '" onclick="return confirm(' . "'Anda yakin ingin menghapus data ini?'" . ')"><i class="fas fa fa-trash"></i>&nbsp;&nbsp; Hapus</a>';
+        }
+
+        // Admin atau Sales
+        if (in_array($this->session->userdata('role_id'), array(1, 2, 4))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/print/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-print"></i>&nbsp;&nbsp; Cetak</a>';
+        }
+      }
+
+      $action .= '</div>';
+      $action .= '</div>';
+
+      $itemArray['action'] = $action;
+
+      $outputData[] = $itemArray; // Tambahkan item yang diubah ke array output
     }
 
-        $outputData[] = $itemArray; // Tambahkan item yang diubah ke array output
-    }
+    return $outputData;
+  }
+  public function datatable()
+  {
+    // Ambil parameter yang diperlukan oleh DataTables
+    $draw = intval($this->input->get("draw"));
+    $start = intval($this->input->get("start"));
+    $length = intval($this->input->get("length"));
+    $tgl_awal = $this->input->get('tgl_awal');
+    $tgl_akhir = $this->input->get('tgl_akhir');
+    $status = $this->input->get("status") ?? "ALL";
+    $order_by = $this->input->get('data') ?? 'kode_pengajuan';  // Kolom untuk sorting
+    $order_direction = $this->input->get("order[0][dir]") ?? 'desc';      // Arah sorting
+
+    // Dapatkan data dari model dengan penambahan sorting
+    $searchValue = $this->input->get('search')['value'] ?? '';
+    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir);
+    $outputData = $this->_persingData($data);
 
 
     // Buat array untuk menyimpan data yang akan dikirimkan ke DataTables
-      $output = array(
-        "draw" => $draw,
-        "start" => $start,
-        "length" => $length,
-        "status" => $status,
-        "recordsTotal" => $this->Peminjaman_model->getCountAll(),
-        "recordsFiltered" => $this->Peminjaman_model->getCountFiltered(),
-        "data" => $outputData
+    $output = array(
+      "draw" => $draw,
+      "start" => $start,
+      "length" => $length,
+      "status" => $status,
+      "recordsTotal" => $this->Peminjaman_model->getCountAll(),
+      "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir),
+      "data" => $outputData,
+      "orderby" => $order_by,
     );
 
     // Kirim data dalam format JSON
@@ -95,41 +217,50 @@ class Peminjaman extends CI_Controller
     exit();
   }
 
+  public function archieveDataTable()
+  {
+    // Ambil parameter yang diperlukan oleh DataTables
+    $draw = intval($this->input->get("draw"));
+    $start = intval($this->input->get("start"));
+    $length = intval($this->input->get("length"));
+    $tgl_awal = $this->input->get('tgl_awal');
+    $tgl_akhir = $this->input->get('tgl_akhir');
+    $status = $this->input->get("status") ?? "ALL";
+    $order_by = $this->input->get('data') ?? 'kode_pengajuan';  // Kolom untuk sorting
+    $order_direction = $this->input->get("order[0][dir]") ?? 'desc';      // Arah sorting
+
+    // Dapatkan data dari model dengan penambahan sorting
+    $searchValue = $this->input->get('search')['value'] ?? '';
+    $isArchieve = true;
+    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve);
+    $outputData = $this->_persingData($data, $isArchieve);
+
+
+    // Buat array untuk menyimpan data yang akan dikirimkan ke DataTables
+    $output = array(
+      "draw" => $draw,
+      "start" => $start,
+      "length" => $length,
+      "status" => $status,
+      "recordsTotal" => $this->Peminjaman_model->getCountAll("ALL", "", "", "", $isArchieve),
+      "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve),
+      "data" => $outputData,
+      "orderby" => $order_by,
+    );
+
+    // Kirim data dalam format JSON
+    echo json_encode($output);
+    exit();
+  }
 
   public function new()
   {
+    // Mendapatkan data pengguna dan informasi lainnya
     $data['title'] = 'List Peminjaman Terbaru';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data["role_id"] = $this->session->userdata("role_id");
+    $data['status'] = 'PENDING';
 
-    $peminjamanData = $this->Peminjaman_model->getAll('PENDING');
-
-    foreach ($peminjamanData as &$item) {
-      if ($item['status'] == "PROCESS") {
-        $item['keterangan_sku'] = $this->Peminjaman_model->checkSkuComplete($item['id_peminjaman']) ? 'Di Approve Oleh : ' : 'Belum Komplit Terjawab PM';
-
-        $userApprovalData = $this->Peminjaman_model->getUserApprovalByPeminjamanId($item['id_peminjaman']);
-
-        if ($userApprovalData) {
-          $userApprovals = [];
-          foreach ($userApprovalData as $userApproval) {
-            $user = $this->Userapproval_model->getUserById($userApproval['id_user']);
-            $statusBadge = ($userApproval['status'] === 'APPROVE') ? 'badge-success' : 'badge-warning';
-            $userApprovals[] = '<span class="badge ' . $statusBadge . '">' . $user['name'] . '</span>';
-          }
-          $item['userApprovals'] = implode(' ', $userApprovals);
-        } else {
-          $item['userApprovals'] = 'Belum Komplit Terjawab PM';
-        }
-      } elseif ($item['status'] == "SUCCESS") {
-        $item['keterangan_sku'] = 'Pengajuan Selesai';
-      } else {
-        $item['keterangan_sku'] = '';
-      }
-    }
-
-    $data['peminjaman'] = $peminjamanData;
-
+    // Memuat tampilan dengan data yang telah diproses
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
@@ -138,39 +269,12 @@ class Peminjaman extends CI_Controller
   }
 
 
+
   public function onprocess()
   {
     $data['title'] = 'List Peminjaman Di Proses';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data["role_id"] = $this->session->userdata("role_id");
-
-    $peminjamanData = $this->Peminjaman_model->getAll('PROCESS');
-
-    foreach ($peminjamanData as &$item) {
-      if ($item['status'] == "PROCESS") {
-        $item['keterangan_sku'] = $this->Peminjaman_model->checkSkuComplete($item['id_peminjaman']) ? 'Di Approve Oleh : ' : 'Belum Komplit Terjawab PM';
-
-        $userApprovalData = $this->Peminjaman_model->getUserApprovalByPeminjamanId($item['id_peminjaman']);
-
-        if ($userApprovalData) {
-          $userApprovals = [];
-          foreach ($userApprovalData as $userApproval) {
-            $user = $this->Userapproval_model->getUserById($userApproval['id_user']);
-            $statusBadge = ($userApproval['status'] === 'APPROVE') ? 'badge-success' : 'badge-warning';
-            $userApprovals[] = '<span class="badge ' . $statusBadge . '">' . $user['name'] . '</span>';
-          }
-          $item['userApprovals'] = implode(' ', $userApprovals);
-        } else {
-          $item['userApprovals'] = 'Belum Komplit Terjawab PM';
-        }
-      } elseif ($item['status'] == "SUCCESS") {
-        $item['keterangan_sku'] = 'Pengajuan Selesai';
-      } else {
-        $item['keterangan_sku'] = '';
-      }
-    }
-
-    $data['peminjaman'] = $peminjamanData;
+    $data['status'] = 'PROCESS';
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
@@ -184,35 +288,7 @@ class Peminjaman extends CI_Controller
   {
     $data['title'] = 'List Peminjaman Di Tolak';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data["role_id"] = $this->session->userdata("role_id");
-
-    $peminjamanData = $this->Peminjaman_model->getAll('REJECTED');
-
-    foreach ($peminjamanData as &$item) {
-      if ($item['status'] == "PROCESS") {
-        $item['keterangan_sku'] = $this->Peminjaman_model->checkSkuComplete($item['id_peminjaman']) ? 'Di Approve Oleh : ' : 'Belum Komplit Terjawab PM';
-
-        $userApprovalData = $this->Peminjaman_model->getUserApprovalByPeminjamanId($item['id_peminjaman']);
-
-        if ($userApprovalData) {
-          $userApprovals = [];
-          foreach ($userApprovalData as $userApproval) {
-            $user = $this->Userapproval_model->getUserById($userApproval['id_user']);
-            $statusBadge = ($userApproval['status'] === 'APPROVE') ? 'badge-success' : 'badge-warning';
-            $userApprovals[] = '<span class="badge ' . $statusBadge . '">' . $user['name'] . '</span>';
-          }
-          $item['userApprovals'] = implode(' ', $userApprovals);
-        } else {
-          $item['userApprovals'] = 'Belum Komplit Terjawab PM';
-        }
-      } elseif ($item['status'] == "SUCCESS") {
-        $item['keterangan_sku'] = 'Pengajuan Selesai';
-      } else {
-        $item['keterangan_sku'] = '';
-      }
-    }
-
-    $data['peminjaman'] = $peminjamanData;
+    $data['status'] = 'REJECTED';
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
@@ -225,35 +301,7 @@ class Peminjaman extends CI_Controller
   {
     $data['title'] = 'List Peminjaman Sukses';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data["role_id"] = $this->session->userdata("role_id");
-
-    $peminjamanData = $this->Peminjaman_model->getAll('SUCCESS');
-
-    foreach ($peminjamanData as &$item) {
-      if ($item['status'] == "PROCESS") {
-        $item['keterangan_sku'] = $this->Peminjaman_model->checkSkuComplete($item['id_peminjaman']) ? 'Di Approve Oleh : ' : 'Belum Komplit Terjawab PM';
-
-        $userApprovalData = $this->Peminjaman_model->getUserApprovalByPeminjamanId($item['id_peminjaman']);
-
-        if ($userApprovalData) {
-          $userApprovals = [];
-          foreach ($userApprovalData as $userApproval) {
-            $user = $this->Userapproval_model->getUserById($userApproval['id_user']);
-            $statusBadge = ($userApproval['status'] === 'APPROVE') ? 'badge-success' : 'badge-warning';
-            $userApprovals[] = '<span class="badge ' . $statusBadge . '">' . $user['name'] . '</span>';
-          }
-          $item['userApprovals'] = implode(' ', $userApprovals);
-        } else {
-          $item['userApprovals'] = 'Belum Komplit Terjawab PM';
-        }
-      } elseif ($item['status'] == "SUCCESS") {
-        $item['keterangan_sku'] = 'Pengajuan Selesai';
-      } else {
-        $item['keterangan_sku'] = '';
-      }
-    }
-
-    $data['peminjaman'] = $peminjamanData;
+    $data['status'] = 'SUCCESS';
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
@@ -356,6 +404,19 @@ class Peminjaman extends CI_Controller
             Data berhasil dihapus!
         </div>');
     redirect(base_url('peminjaman'));
+  }
+
+  public function restore($id_peminjaman)
+  {
+    if (!in_array($this->session->userdata('role_id'), [1])) {
+      redirect(base_url() . 'peminjaman/archieve');
+    }
+
+    $this->Peminjaman_model->restore($id_peminjaman);
+    $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+            Data berhasil restore!
+        </div>');
+    redirect(base_url('peminjaman/archieve'));
   }
 
   public function edit($id_peminjaman)
