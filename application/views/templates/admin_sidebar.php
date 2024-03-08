@@ -34,7 +34,7 @@
             }
         } else {
             // Jika role_id kosong, lempar ke halaman login
-            redirect('login'); // Sesuaikan URL login sesuai kebutuhan
+            redirect(base_url()); // Sesuaikan URL login sesuai kebutuhan
         }
         ?>
 
