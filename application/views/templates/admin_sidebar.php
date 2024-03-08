@@ -14,12 +14,28 @@
 
         <!-- QUERY user_menu JOIN user_access_menu -->
         <?php
-        $role_id = $this->session->userdata['role_id'];
-        $queryMenu =    "SELECT `user_menu`.`id`, `menu` FROM `user_menu` JOIN `user_access_menu`
-                        ON `user_menu`.`id` = `user_access_menu`.`menu_id`
-                        WHERE `user_access_menu`.`role_id` = $role_id
-                        ORDER BY `user_access_menu`.`menu_id` ASC";
-        $menu = $this->db->query($queryMenu)->result_array();
+        $role_id = $this->session->userdata('role_id');
+
+        // Periksa apakah role_id sudah terdefinisi dan tidak kosong
+        if ($role_id) {
+            $queryMenu = "SELECT `user_menu`.`id`, `menu` FROM `user_menu` JOIN `user_access_menu`
+                            ON `user_menu`.`id` = `user_access_menu`.`menu_id`
+                            WHERE `user_access_menu`.`role_id` = $role_id
+                            ORDER BY `user_access_menu`.`menu_id` ASC";
+            
+            $menu = $this->db->query($queryMenu)->result_array();
+            
+            // Pastikan query dijalankan dengan sukses
+            if ($menu !== false) {
+                // Lanjutkan dengan kode Anda
+            } else {
+                // Redirect or handle the error accordingly
+                redirect(base_url()); // Sesuaikan URL sesuai kebutuhan
+            }
+        } else {
+            // Jika role_id kosong, lempar ke halaman login
+            redirect('login'); // Sesuaikan URL login sesuai kebutuhan
+        }
         ?>
 
         <!-- Looping Menu -->

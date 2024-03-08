@@ -43,9 +43,9 @@ class Peminjaman_model extends CI_Model
 			$this->db->where('peminjaman.status', $status);
 		}
 
-		if($isArchieve){
+		if ($isArchieve) {
 			$this->db->where('peminjaman.deleted_at !=', NULL);
-		}else{
+		} else {
 			// filter data no softdeleted
 			$this->db->where('peminjaman.deleted_at IS NULL');
 		}
@@ -103,9 +103,9 @@ class Peminjaman_model extends CI_Model
 			$this->db->where('peminjaman.status', $status);
 		}
 
-		if($isArchieve){
+		if ($isArchieve) {
 			$this->db->where('peminjaman.deleted_at !=', NULL);
-		}else{
+		} else {
 			// filter data no softdeleted
 			$this->db->where('peminjaman.deleted_at IS NULL');
 		}
@@ -226,7 +226,8 @@ class Peminjaman_model extends CI_Model
 		$this->db->update('userapproval', $data);
 	}
 
-	public function restore($id_peminjaman){
+	public function restore($id_peminjaman)
+	{
 		$data["deleted_at"] =  NULL;
 
 		$this->db->where('id_peminjaman', $id_peminjaman);
