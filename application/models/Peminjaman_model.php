@@ -17,13 +17,18 @@ class Peminjaman_model extends CI_Model
 		return $query->result();
 	}
 
-	public function getCountAll($status = "ALL", $searchValue = "", $tgl_awal = "", $tgl_akhir = "", $isArchieve = false)
+	public function getCountAll($status = "ALL", $searchValue = "", $tgl_awal = "", $tgl_akhir = "", $from = "ALL", $direction = "ALL", $isArchieve = false)
 	{
-		$this->db->select("peminjaman.*, user.name, cabang.nama_cabang, cb.nama_cabang as from_cb");
+		$this->db->select("peminjaman.*, user.name, cabang.nama_cabang as to_cb, cb.nama_cabang as from_cb");
 		$this->db->from('peminjaman');
 		$this->db->join("user", 'user.id = peminjaman.id_user', 'inner');
 		$this->db->join("cabang", "cabang.id_cabang = peminjaman.id_cabang", "inner");
-		$this->db->join("cabang AS cb", "cb.id_area = peminjaman.from", "inner");
+		// fiele id_cabang itu relasi ke tabel cabang
+		// field from itu relasi ke tabel area
+		// ketika ingin mencari peminjaman dari cabang apa, relasikan peminjaman.from -> area -> cabang
+		
+		$this->db->join("area", "area.id_area = peminjaman.from", "inner");
+		$this->db->join("cabang AS cb", "cb.id_area = area.id_area", "inner");
 
 		if ($this->session->userdata('role_id') != 1 && $this->session->userdata('role_id') != 2) {
 			$areas = $this->session->userdata("area");
@@ -41,6 +46,14 @@ class Peminjaman_model extends CI_Model
 
 		if ($status !== 'ALL') {
 			$this->db->where('peminjaman.status', $status);
+		}
+
+		if ($from != "ALL") {
+			$this->db->where("peminjaman.from",intval($from));
+		}
+
+		if ($direction != "ALL") {
+			$this->db->where("peminjaman.id_cabang", intval($direction));
 		}
 
 		if ($isArchieve) {
@@ -70,20 +83,26 @@ class Peminjaman_model extends CI_Model
 		return $this->db->count_all_results(); // count with filtered
 	}
 
-	public function getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve = false)
+	public function getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve = false)
 	{
 		// Jika Anda memiliki logika filter, implementasikan di sini
 		// Untuk sederhana, asumsikan sama dengan getCountAll
-		return $this->getCountAll($status, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve);
+		return $this->getCountAll($status, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction,  $isArchieve);
 	}
 
-	public function getAll($status, $start, $length, $order_by = 'kode_pengajuan', $order_direction = 'asc', $searchValue = "", $tgl_awal = "", $tgl_akhir = "", $isArchieve = false)
+	public function getAll($status, $start, $length, $order_by = 'kode_pengajuan', $order_direction = 'asc', $searchValue = "", $tgl_awal = "", $tgl_akhir = "", $from = "ALL", $direction = "ALL", $isArchieve = false)
 	{
-		$this->db->select("peminjaman.*, user.name, cabang.nama_cabang, cb.nama_cabang as from_cb");
+		$this->db->select("peminjaman.*, user.name, cabang.nama_cabang as to_cb, cb.nama_cabang as from_cb");
 		$this->db->from('peminjaman');
 		$this->db->join("user", 'user.id = peminjaman.id_user', 'inner');
 		$this->db->join("cabang", "cabang.id_cabang = peminjaman.id_cabang", "inner");
-		$this->db->join("cabang AS cb", "cb.id_area = peminjaman.from", "inner");
+
+		// fiele id_cabang itu relasi ke tabel cabang
+		// field from itu relasi ke tabel area
+		// ketika ingin mencari peminjaman dari cabang apa, relasikan peminjaman.from -> area -> cabang
+		
+		$this->db->join("area", "area.id_area = peminjaman.from", "inner");
+		$this->db->join("cabang AS cb", "cb.id_area = area.id_area", "inner");
 
 		if ($this->session->userdata('role_id') != 1 && $this->session->userdata('role_id') != 2) {
 			$areas = $this->session->userdata("area");
@@ -101,6 +120,15 @@ class Peminjaman_model extends CI_Model
 
 		if ($status !== 'ALL') {
 			$this->db->where('peminjaman.status', $status);
+		}
+
+		if ($from != "ALL") {
+			// from mengambil dari id area suatu cabang
+			$this->db->where("peminjaman.from", intval($from));
+		}
+
+		if ($direction != "ALL") {
+			$this->db->where("peminjaman.id_cabang", intval($direction));
 		}
 
 		if ($isArchieve) {

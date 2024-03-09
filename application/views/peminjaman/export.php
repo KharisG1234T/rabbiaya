@@ -50,6 +50,7 @@
             <th>Peminjam</th>
             <th>Kepada Dinas</th>
             <th>Dari Cabang</th>
+            <th>Tujuan</th>
             <th>Tanggal Dibuat</th>
             <th>Closing Date</th>
             <th>Catatan</th>
@@ -64,6 +65,7 @@
                 <td><?= $d["name"] ?></td>
                 <td><?= $d["dinas"] ?></td>
                 <td><?= $d["from_cb"] ?></td>
+                <td><?= $d["to_cb"] ?></td>
                 <td><?= $d["date"] ?></td>
                 <td><?= $d["closingdate"] ?></td>
                 <td><?= $d["note"] ?></td>

@@ -19,7 +19,7 @@
                 <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
                   <div class="kosong">
                     <select class="form-control" id="direction" name="direction" require>
-                      <option value="">Kepada Cabang ... (Contoh Pilihan : Kepada SAP Pusat) </option>
+                      <option value="">Kepada Cabang ... </option>
                       <?php foreach ($cabangs as $cabang) { ?>
                         <option value="<?= $cabang['id_cabang'] ?>"><?= $cabang['nama_cabang'] ?></option>
                       <?php } ?>

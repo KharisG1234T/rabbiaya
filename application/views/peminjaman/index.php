@@ -57,10 +57,34 @@ $user = $this->session->userdata();
                 </div>
               </div>
             <?php } ?>
+
+            <?php if ($user["role_id"] != "2") { ?>
+              <div class="col-md-3">
+                <div class="form-group"><label for="fFrom">Dari</label><select class="form-control" id="fFrom" name="fFrom">
+                    <option value="ALL">All</option>
+                    <?php foreach ($cabangs as $cabang) { ?>
+                      <!-- disini menggunakan id_area karena from itu relasi ke area -->
+                      <option value="<?= $cabang['id_area'] ?>"><?= $cabang['nama_cabang'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group"><label for="fDirection">Tujuan </label><select class="form-control" id="fDirection" name="fDirection">
+                    <option value="ALL">All</option>
+                    <?php foreach ($cabangs as $cbg) { ?>
+                      <option value="<?= $cbg['id_cabang'] ?>"><?= $cbg['nama_cabang'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+            <?php } ?>
             <div class="col-md-3">
               <div class="pt-3">
                 <button class="mt-3 btn btn-md btn-success mr-3" id="btn-submit" onclick="return filter()" type="submit">Submit </button>
-                <button class="mt-3 btn btn-md btn-primary mr-3" id="btn-submit" onclick="return exportExcel()" type="submit">Export to Excel </button>
+                <?php if ($user["role_id"] == "1") { ?>
+                  <button class="mt-3 btn btn-md btn-primary mr-3" id="btn-submit" onclick="return exportExcel()" type="submit">Export to Excel </button>
+                <?php } ?>
               </div>
             </div>
           </div>
@@ -78,6 +102,7 @@ $user = $this->session->userdata();
               <th>Peminjam</th>
               <th>Kepada Dinas</th>
               <th>Peminjaman Dari</th>
+              <th>Tujuan</th>
               <th>Tanggal Dibuat</th>
               <th>Closing Date</th>
               <th>Catatan</th>
@@ -148,6 +173,9 @@ $user = $this->session->userdata();
           "data": "from_cb"
         },
         {
+          "data": "to_cb"
+        },
+        {
           "data": "date"
         },
         {
@@ -187,7 +215,9 @@ $user = $this->session->userdata();
     let payload = {
       tgl_awal: $("#fTglAwal").val(),
       tgl_akhir: $("#fTglAkhir").val(),
-      status: status
+      status: status,
+      from: $("#fFrom").val(),
+      direction: $("#fDirection").val()
     }
 
     dataTable.clear();
@@ -203,9 +233,10 @@ $user = $this->session->userdata();
     let payload = {
       tgl_awal: $("#fTglAwal").val(),
       tgl_akhir: $("#fTglAkhir").val(),
-      status: status
+      status: status,
+      from: $("#fFrom").val(),
+      direction: $("#fDirection").val()
     }
     window.location.href = "export_excel?" + $.param(payload)
   }
-
 </script>

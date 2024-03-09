@@ -20,6 +20,7 @@ class Peminjaman extends CI_Controller
     $data['title'] = 'List Peminjaman';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'ALL';
+    $data['cabangs'] = $this->Cabang_model->getAll();
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
@@ -33,6 +34,7 @@ class Peminjaman extends CI_Controller
     $data['title'] = 'List Archieve Peminjaman';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'ALL';
+    $data['cabangs'] = $this->Cabang_model->getAll();
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
@@ -52,11 +54,23 @@ class Peminjaman extends CI_Controller
       $status = "ALL";
     }
 
+    $from = $this->input->get("from");
+    if ($from == "") {
+      $from = "ALL";
+    }
+
+    $direction = $this->input->get("direction");
+    if ($direction == "") {
+      $direction = "ALL";
+    }
+
+    $isArchieve = false;
+
     $order_by = 'kode_pengajuan';  // Kolom untuk sorting
     $order_direction = 'desc';
     $searchValue = '';
 
-    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir);
+    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve);
     $data = $this->_persingData($data);
 
     $this->load->view("peminjaman/export", [
@@ -191,12 +205,15 @@ class Peminjaman extends CI_Controller
     $tgl_awal = $this->input->get('tgl_awal');
     $tgl_akhir = $this->input->get('tgl_akhir');
     $status = $this->input->get("status") ?? "ALL";
+    $from = $this->input->get('from')  ?? "ALL";
+    $direction = $this->input->get("direction")  ?? "ALL";
+    $isArchieve = false;
     $order_by = $this->input->get('data') ?? 'kode_pengajuan';  // Kolom untuk sorting
     $order_direction = $this->input->get("order[0][dir]") ?? 'desc';      // Arah sorting
 
     // Dapatkan data dari model dengan penambahan sorting
     $searchValue = $this->input->get('search')['value'] ?? '';
-    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir);
+    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve);
     $outputData = $this->_persingData($data);
 
 
@@ -204,7 +221,7 @@ class Peminjaman extends CI_Controller
     $output = array(
       "draw" => $draw,
       "recordsTotal" => $this->Peminjaman_model->getCountAll(),
-      "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir),
+      "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve),
       "data" => $outputData,
     );
 
@@ -221,6 +238,8 @@ class Peminjaman extends CI_Controller
     $length = intval($this->input->get("length"));
     $tgl_awal = $this->input->get('tgl_awal');
     $tgl_akhir = $this->input->get('tgl_akhir');
+    $from = $this->input->get('from')  ?? "ALL";
+    $direction = $this->input->get("direction")  ?? "ALL";
     $status = $this->input->get("status") ?? "ALL";
     $order_by = $this->input->get('data') ?? 'kode_pengajuan';  // Kolom untuk sorting
     $order_direction = $this->input->get("order[0][dir]") ?? 'desc';      // Arah sorting
@@ -228,15 +247,15 @@ class Peminjaman extends CI_Controller
     // Dapatkan data dari model dengan penambahan sorting
     $searchValue = $this->input->get('search')['value'] ?? '';
     $isArchieve = true;
-    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve);
+    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve);
     $outputData = $this->_persingData($data, $isArchieve);
 
 
     // Buat array untuk menyimpan data yang akan dikirimkan ke DataTables
     $output = array(
       "draw" => $draw,
-      "recordsTotal" => $this->Peminjaman_model->getCountAll("ALL", "", "", "", $isArchieve),
-      "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve),
+      "recordsTotal" => $this->Peminjaman_model->getCountAll("ALL", "", "", "", "", "", $isArchieve),
+      "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve),
       "data" => $outputData,
     );
 
@@ -251,6 +270,7 @@ class Peminjaman extends CI_Controller
     $data['title'] = 'List Peminjaman Terbaru';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'PENDING';
+    $data['cabangs'] = $this->Cabang_model->getAll();
 
     // Memuat tampilan dengan data yang telah diproses
     $this->load->view('templates/admin_header', $data);
@@ -267,6 +287,7 @@ class Peminjaman extends CI_Controller
     $data['title'] = 'List Peminjaman Di Proses';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'PROCESS';
+    $data['cabangs'] = $this->Cabang_model->getAll();
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
@@ -281,6 +302,7 @@ class Peminjaman extends CI_Controller
     $data['title'] = 'List Peminjaman Di Tolak';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'REJECTED';
+    $data['cabangs'] = $this->Cabang_model->getAll();
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
@@ -294,6 +316,7 @@ class Peminjaman extends CI_Controller
     $data['title'] = 'List Peminjaman Sukses';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'SUCCESS';
+    $data['cabangs'] = $this->Cabang_model->getAll();
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
