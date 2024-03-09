@@ -250,7 +250,7 @@
       no = no + 1
       $('#dynamic').append(`
         <tr id="row${no}" class="tb_row">
-          <td><label>No.${no}</label></td> 
+          <td><label>${no}</label></td> 
           <td><input type="text" id="sku${no}" placeholder="SKU" readonly class="form-control" value="${item.sku}" required /></td> 
           <td><input type="text" id="name${no}" placeholder="Nama Barang" readonly class="form-control" value="${item.nama}" required />
           </td> <td><input type="number" placeholder="QTY" id="qty${no}" onkeyup="getTotalFromQty(this)" class="form-control" readonly value="${item.qty}" required /></td> 
@@ -267,7 +267,7 @@
       no++;
       $('#dynamic').append(`
         <tr id="row${no}" class="tb_row"> 
-          <td><label>No.${no}</label></td>  
+          <td><label>${no}</label></td>  
           <td><input type="text" id="sku${no}" placeholder="SKU" readonly class="form-control" required /></td>          
           <td><input type="text" id="name${no}" placeholder="Nama Barang" class="form-control" required /></td> 
           <td><input type="number" placeholder="QTY" id="qty${no}" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 

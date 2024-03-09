@@ -137,7 +137,7 @@
     no = no + 1
     $('#dynamic').append(`
       <tr id="row${no}" class="tb_row">
-        <td><label>No.${no}</label></td>
+        <td><label>${no}</label></td>
         <input type="hidden" id="id${no}" value="${item.id_bp}" required />
         <td><input type="text" id="sku${no}" placeholder="SKU" value="${item.sku}" class="form-control" /></td>
         <td><input type="text" id="stokpo${no}" placeholder="Stok/PO" value="${item.stok_po}" class="form-control" /></td>

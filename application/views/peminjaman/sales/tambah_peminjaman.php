@@ -15,7 +15,7 @@
               <input type="hidden" value="<?= $this->session->userdata('id') ?>" name="userid" id="userid" />
               <input type="hidden" value="<?= $this->session->userdata('role_id') ?>" name="roleId" id="roleId" />
               <div class="form-group row ">
-              <input type="hidden" name="kode_pengajuan" id="kode_pengajuan" value="">
+                <input type="hidden" name="kode_pengajuan" id="kode_pengajuan" value="">
                 <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
                   <div class="kosong">
                     <select class="form-control" id="direction" name="direction" require>
@@ -55,12 +55,12 @@
                       </select>
                     </div>
                   </div>
-                <?php  } else {
+                <!-- <?php  } else {
                   $area = $this->session->userdata('area');
                   $areaId = $area[0]["area_id"];
                 ?>
                   <input type="hidden" class="form-control" name="from" value="<?= $areaId ?>" id="from" placeholder="Dari" require>
-                <?php } ?>
+                <?php } ?> -->
                 <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
                   <div class="kosong">
                     <input type="text" class="form-control" name="number" id="number" placeholder="Nomor" readonly value="<?= date('m') ?>/PB/<?= date('y') ?>">
@@ -89,12 +89,12 @@
                       </thead>
                       <tbody id="dynamic">
                         <tr class="tb_row">
-                          <td><label>No.1</label></td>
-                          <td><input type="text" id="name1" placeholder="Nama Barang" class="form-control" required /></td>
-                          <td><input type="number" id="qty1" placeholder="QTY" onkeyup="getTotalFromQty(this)" class="form-control" required /></td>
-                          <td><input type="text" id="price1" placeholder="Harga Satuan" onkeyup="getTotalFromPrice(this)" class="form-control" required /></td>
-                          <td><input type="text" id="total1" placeholder="Total" onchange="change()" readonly class="form-control" required /></td>
-                          <td><input type="date" id="maks1" placeholder="Maks Delivery" class="form-control date" required /></td>
+                          <td><label>1</label></td>
+                          <td><input type="text" id="name-ikiuniqueyo" placeholder="Nama Barang" class="form-control" required /></td>
+                          <td><input type="number" id="qty-ikiuniqueyo" placeholder="QTY" onkeyup="getTotalFromQty(this)" class="form-control" required /></td>
+                          <td><input type="text" id="price-ikiuniqueyo" placeholder="Harga Satuan" onkeyup="getTotalFromPrice(this)" class="form-control" required /></td>
+                          <td><input type="text" id="total-ikiuniqueyo" placeholder="Total" onchange="change()" readonly class="form-control" required /></td>
+                          <td><input type="date" id="maks-ikiuniqueyo" placeholder="Maks Delivery" class="form-control date" required /></td>
                           <td><button type="button" id="tambah" class="btn btn- btn-success">Add <i class="fas fa-fw fa-plus"></i></button></td>
                         </tr>
                       </tbody>
@@ -122,20 +122,20 @@
                   </div>
                 </div>
               </div>
-            <div class="form-group row">
-              <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
+              <div class="form-group row">
+                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
                   <div class="kosong">
                     <label for='dinas'>Dinas</label>
                     <input type="text" class="form-control" name="dinas" id="dinas" placeholder="nama dinas" required>
                   </div>
-              </div>
-              <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
+                </div>
+                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
                   <div class="kosong">
                     <label for='lokasi'>Lokasi</label>
                     <input type="text" class="form-control" name="lokasi" id="lokasi" placeholder="lokasi dinas" required>
                   </div>
+                </div>
               </div>
-            </div>
               <div class="form-group row mt-5">
                 <input type="hidden" name="" id="url_peminjaman" value="<?= base_url('peminjaman') ?>">
                 <a href="<?= base_url('peminjaman') ?>" class="btn btn-danger ml-auto mr-3" data-dismiss="modal">Cancel</a>
@@ -156,6 +156,17 @@
 </section>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script>
+  let uniqIds = ["ikiuniqueyo"]; //one default iniquid
+
+  function createRandomString(length) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
   function formatRupiah(angka = 0, prefix) {
     var number_string = angka.replace(/[^,\d]/g, '').toString(),
       split = number_string.split(','),
@@ -200,59 +211,76 @@
   // set total
   function change() {
     let total = 0;
-    const tbRow = document.getElementsByClassName("tb_row");
-    for (let i = 1; i <= tbRow.length; i++) {
-      let data = parseInt(($(`#total${i}`).val()).replace(/[^0-9]/g, ""))
+    uniqIds.forEach((uid, i) => {
+      let data = parseInt(($(`#total-${uid}`).val()).replace(/[^0-9]/g, ""))
       if (total !== 0) {
         total = total.replace(/[.]/g, "")
       }
       total = parseInt(total) + parseInt(data ? data : 0);
       total = formatRupiah(total.toString());
-    }
+
+      $(`#no-${uid}`).text(`${i + 1}`)
+    })
+
     $('#total').text(total)
   }
 
+  // change text of number in list table
+  function changeNumber() {
+    uniqIds.forEach((uid, i) => {
+      $(`#no-${uid}`).text(`${i + 1}`)
+    })
+  }
+
   function getTotalFromQty(e) {
-    const index = e.id.replace(/qty/, "")
+    const uid = e.id.replace(/qty-/, "")
     const qty = e.value;
-    const price = $(`#price${index}`).val().replace(/[^0-9]/g, "");
+    const price = $(`#price-${uid}`).val().replace(/[^0-9]/g, "");
     const total = parseInt((qty ? qty : 0) * parseInt(price ? price : 0))
-    $(`#total${index}`).val(formatRupiah(total.toString(), "Rp. "))
+    $(`#total-${uid}`).val(formatRupiah(total.toString(), "Rp. "))
     change()
   }
 
   function getTotalFromPrice(e) {
-    const index = e.id.replace(/price/, "")
+    const uid = e.id.replace(/price-/, "")
     const price = e.value.replace(/[^0-9]/g, "")
     $(`#${e.id}`).val(formatRupiah(price, "Rp. "))
-    const qty = $(`#qty${index}`).val();
+    const qty = $(`#qty-${uid}`).val();
     const total = parseInt((qty ? qty : 0) * parseInt(price ? price : 0))
-    $(`#total${index}`).val(formatRupiah(total.toString(), "Rp. "))
+    $(`#total-${uid}`).val(formatRupiah(total.toString(), "Rp. "))
     change()
   }
 
   $(document).ready(function() {
-    var no = 1;
 
     $('#tambah').click(function() {
-      no++;
+      let no = uniqIds.length + 1
+
+      let unique = createRandomString(10);
+      uniqIds = [...uniqIds, unique] // save every uniq id into array to get value input in the looping calculation
+
       $('#dynamic').append(`
-        <tr id="row${no}" class="tb_row"> 
-          <td><label>No.${no}</label></td>  
-          <td><input type="text" id="name${no}" placeholder="Nama Barang" class="form-control" required /></td> 
-          <td><input type="number" placeholder="QTY" id="qty${no}" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 
-          <td><input type="text" placeholder="Harga Satuan" id="price${no}"  onkeyup="getTotalFromPrice(this)" class="form-control" required /></td> 
-          <td><input type="text" placeholder="Total" id="total${no}" onchange="change()" readonly class="form-control" required /></td> 
-          <td><input type="date" placeholder="Maks Delivery" id="maks${no}" class="form-control date" required /></td> 
-          <td> <button type="button" id="${no}" class="btn btn-danger btn_remove">Hapus</button></td>
+        <tr id="row-${unique}" class="tb_row"> 
+          <td><label id="no-${unique}">${no}</label></td>  
+          <td><input type="text" id="name-${unique}" placeholder="Nama Barang" class="form-control" required /></td> 
+          <td><input type="number" placeholder="QTY" id="qty-${unique}" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 
+          <td><input type="text" placeholder="Harga Satuan" id="price-${unique}"  onkeyup="getTotalFromPrice(this)" class="form-control" required /></td> 
+          <td><input type="text" placeholder="Total" id="total-${unique}" onchange="change()" readonly class="form-control" required /></td> 
+          <td><input type="date" placeholder="Maks Delivery" id="maks-${unique}" class="form-control date" required /></td> 
+          <td> <button type="button" id="${unique}" class="btn btn-danger btn_remove">Hapus</button></td>
         </tr>`);
+
+      // update NO of list
+      changeNumber()
     });
 
     $(document).on('click', '.btn_remove', function() {
       var button_id = $(this).attr("id");
-      $('#row' + button_id + '').remove();
-      no--;
-      change()
+      $('#row-' + button_id + '').remove();
+      uniqIds = uniqIds.filter((uid) => uid != button_id)
+
+      change() // update total price
+      changeNumber() // update number of list
     });
 
 
@@ -260,12 +288,12 @@
       e.preventDefault()
       let barang = []
 
-      for (let i = 1; i <= no; i++) {
-        let name = $(`#name${i}`).val()
-        let qty = $(`#qty${i}`).val()
-        let price = parseInt(($(`#price${i}`).val()).replace(/[^0-9]/g, ""))
-        let total = parseInt(($(`#total${i}`).val()).replace(/[^0-9]/g, ""))
-        let maks = $(`#maks${i}`).val()
+      uniqIds.forEach((uid) => {
+        let name = $(`#name-${uid}`).val()
+        let qty = $(`#qty-${uid}`).val()
+        let price = parseInt(($(`#price-${uid}`).val()).replace(/[^0-9]/g, ""))
+        let total = parseInt(($(`#total-${uid}`).val()).replace(/[^0-9]/g, ""))
+        let maks = $(`#maks-${uid}`).val()
         barang = [...barang, {
           name,
           qty,
@@ -273,12 +301,12 @@
           total,
           maks
         }]
-      }
+      })
 
       const direction = $('#direction').val();
-      const userId = $('#roleId').val() == 1 ? $('#submitter').val() : $('#userid').val(); // kalau admin dia ambil id dari input submitter
+      const userId = $('#roleId').val() == "1" ? $('#submitter').val() : null; // kalau admin dia ambil id dari input submitter
       const date = $('#date').val()
-      const from = $('#from').val()
+      const from = $('#roleId').val() == "1" ? $('#from').val() : null;
       const number = $('#number').val()
       const closingDate = $('#closingdate').val()
       const note = $('#note').val()

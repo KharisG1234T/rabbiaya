@@ -162,7 +162,7 @@ class Peminjaman extends CI_Controller
         }
 
         // Admin atau Sales
-        if ($itemArray["status"] == "PENDING" && in_array($this->session->userdata('role_id'), array(1, 2))) {
+        if ($this->session->userdata('role_id') == 1) {
           $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/delete/') . $itemArray['id_peminjaman'] . '" onclick="return confirm(' . "'Anda yakin ingin menghapus data ini?'" . ')"><i class="fas fa fa-trash"></i>&nbsp;&nbsp; Hapus</a>';
         }
 
@@ -203,13 +203,9 @@ class Peminjaman extends CI_Controller
     // Buat array untuk menyimpan data yang akan dikirimkan ke DataTables
     $output = array(
       "draw" => $draw,
-      "start" => $start,
-      "length" => $length,
-      "status" => $status,
       "recordsTotal" => $this->Peminjaman_model->getCountAll(),
       "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir),
       "data" => $outputData,
-      "orderby" => $order_by,
     );
 
     // Kirim data dalam format JSON
@@ -239,13 +235,9 @@ class Peminjaman extends CI_Controller
     // Buat array untuk menyimpan data yang akan dikirimkan ke DataTables
     $output = array(
       "draw" => $draw,
-      "start" => $start,
-      "length" => $length,
-      "status" => $status,
       "recordsTotal" => $this->Peminjaman_model->getCountAll("ALL", "", "", "", $isArchieve),
       "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $isArchieve),
       "data" => $outputData,
-      "orderby" => $order_by,
     );
 
     // Kirim data dalam format JSON
@@ -346,10 +338,15 @@ class Peminjaman extends CI_Controller
   // insert peminjaman
   public function insert()
   {
+    $userId = $this->session->userdata("id");
+    $roleId = $this->session->userdata('role_id');
+    $area = $this->session->userdata('area');
+    $areaId = $area[0]["area_id"];
+
     $dataPeminjaman = array(
       'id_cabang' => $this->input->post('direction'),
-      'id_user' => $this->input->post('userId'),
-      'from' => $this->input->post('from'),
+      'id_user' => $roleId == "1" ? $this->input->post('userId') : $userId, // jika admin, ambil value dari view
+      'from' => $roleId == "1" ? $this->input->post('from') : $areaId, // jika admin, ambil value dari view
       'date' => date('Y-m-d'),
       'number' => $this->input->post('number'),
       'closingdate' => $this->input->post('closingDate'),
@@ -433,7 +430,6 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
     $this->load->view('peminjaman/sales/edit_peminjaman', $data);
-    $this->load->view('peminjaman/cs/edit_peminjaman', $data);
     $this->load->view('templates/admin_footer');
   }
 
@@ -600,10 +596,16 @@ class Peminjaman extends CI_Controller
   // update peminjaman
   public function update()
   {
+    $userId = $this->session->userdata("id");
+    $roleId = $this->session->userdata('role_id');
+    $area = $this->session->userdata('area');
+    $areaId = $area[0]["area_id"];
+
     $idPeminjaman = $this->input->post('id');
     $dataPeminjaman = array(
       'id_cabang' => $this->input->post('direction'),
-      'from' => $this->input->post('from'),
+      'id_user' => $roleId == "1" ? $this->input->post('userId') : $userId, // jika admin, ambil value dari view
+      'from' => $roleId == "1" ? $this->input->post('from') : $areaId, // jika admin, ambil value dari view
       'date' => $this->input->post('date'),
       'number' => $this->input->post('number'),
       'closingdate' => $this->input->post('closingDate'),
