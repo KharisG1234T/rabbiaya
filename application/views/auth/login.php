@@ -24,16 +24,19 @@
                                         <?= form_error('password', '<small class="text-danger pl-3">', '</small>'); ?>
                                     </div>
                                     <button type="submit" class="btn btn-success btn-user btn-block">
-                                        Sign In
+                                        Login Akun
                                     </button>
                                 </form>
                                 <hr>
+                                <div class="text-center">
+                                    <a class="btn btn-warning btn-user btn-block" href="<?= site_url('/auth/registration') ?>">Registrasi Akun</a>
+                                </div>
                                 <div class="text-center">
                                     <a class="small">Perlu Bantuan ?</a>
                                 </div>
                                 <div class="text-center">
                                     <a class="small" href="https://api.whatsapp.com/send/?phone=%2B6283866306912&text&type=phone_number&app_absent=0">Hubungi Tim IT Sekarang!</a>
-                                </div>
+                                </div>                           
                             </div>
                         </div>
                     </div>

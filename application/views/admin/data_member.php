@@ -15,7 +15,7 @@
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary"><?= $title; ?></h6>
+            <h6 class="m-0 font-weight-bold text-primary float-left"><?= $title; ?></h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -39,15 +39,15 @@
                                 <td><?= $um['name']; ?></td>
                                 <td><?= $um['email']; ?></td>
                                 <td>
-                                    <?php if($um['role_id'] == 1) : ?> <?= 'Administrator' ?>
-                                    <?php elseif($um['role_id'] == 2) : ?> <?= 'Sales' ?>
-                                    <?php elseif($um['role_id'] == 3) : ?> <?= 'PM' ?>
-                                    <?php elseif($um['role_id'] == 4) : ?> <?= 'KoorSales' ?>
-                                    <?php elseif($um['role_id'] == 5) : ?> <?= 'HeadRegion' ?>
-                                    <?php elseif($um['role_id'] == 6) : ?> <?= 'ManagerSales' ?>
-                                    <?php elseif($um['role_id'] == 7) : ?> <?= 'ManagerOps' ?>
-                                    <?php elseif($um['role_id'] == 8) : ?> <?= 'PMManager' ?>
-                                    <?php elseif($um['role_id'] == 9) : ?> <?= 'CS' ?>
+                                    <?php if ($um['role_id'] == 1) : ?> <?= 'Administrator' ?>
+                                    <?php elseif ($um['role_id'] == 2) : ?> <?= 'Sales' ?>
+                                    <?php elseif ($um['role_id'] == 3) : ?> <?= 'PM' ?>
+                                    <?php elseif ($um['role_id'] == 4) : ?> <?= 'KoorSales' ?>
+                                    <?php elseif ($um['role_id'] == 5) : ?> <?= 'HeadRegion' ?>
+                                    <?php elseif ($um['role_id'] == 6) : ?> <?= 'ManagerSales' ?>
+                                    <?php elseif ($um['role_id'] == 7) : ?> <?= 'ManagerOps' ?>
+                                    <?php elseif ($um['role_id'] == 8) : ?> <?= 'PMManager' ?>
+                                    <?php elseif ($um['role_id'] == 9) : ?> <?= 'CS' ?>
                                     <?php else : ?> <?= 'Purchasing' ?> <?php endif; ?> <br>
                                 </td>
                                 <td>

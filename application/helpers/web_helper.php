@@ -10,18 +10,22 @@ function is_logged_in()
         $menu = $ci->uri->segment(1);
 
         $queryMenu = $ci->db->get_where('user_menu', ['menu' => $menu])->row_array();
-        $menu_id = $queryMenu['id'];
+
+        // Tambahkan pemeriksaan sebelum mengakses indeks 'id'
+        $menu_id = isset($queryMenu['id']) ? $queryMenu['id'] : null;
 
         $userAccess = $ci->db->get_where('user_access_menu', [
             'role_id' => $role_id,
             'menu_id' => $menu_id
         ]);
 
+        // Uncomment baris berikut jika diperlukan
         // if ($userAccess->num_rows() < 1 ) {
         //     redirect('auth/blocked');
         // }
     }
 }
+
 
 function check_access($role_id, $menu_id)
 {
@@ -48,4 +52,3 @@ function check_area($user_id, $area_id)
         return "checked ='checked'";
     }
 }
-
