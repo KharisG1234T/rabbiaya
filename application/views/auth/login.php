@@ -32,7 +32,7 @@
                                     <a class="small">Perlu Bantuan ?</a>
                                 </div>
                                 <div class="text-center">
-                                    <a class="small" href="wa.me/+6283866306912">Hubungi Tim IT Sekarang!</a>
+                                    <a class="small" href="https://api.whatsapp.com/send/?phone=%2B6283866306912&text&type=phone_number&app_absent=0">Hubungi Tim IT Sekarang!</a>
                                 </div>
                             </div>
                         </div>
