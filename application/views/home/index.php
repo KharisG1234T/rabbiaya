@@ -7,8 +7,8 @@
                 <hr class="divider my-4" />
             </div>
             <div class="col-lg-8 align-self-baseline">
-                <p class="text-white-75 font-weight-light mb-5">Kini pengajuan peminjaman barang pusat lebih mudah dengan menggunakan Program Approval</p>
-                <a class="btn btn-success btn-xl js-scroll-trigger" href="<?= site_url('auth'); ?>">Sign In untuk Pengajuan <i class="fas fa-sign-in-alt"></i></a>
+                <p class="text-white-75 font-weight-light mb-5">Kini anda dapat melakukan pengajuan peminjaman barang lebih mudah dengan menggunakan Program Approval</p>
+                <a class="btn btn-success btn-xl js-scroll-trigger" href="<?= site_url('auth'); ?>">Silahkan Sign In untuk Pengajuan <i class="fas fa-sign-in-alt"></i></a>
             </div>
         </div>
     </div>
@@ -18,15 +18,15 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8 text-center">
-                <h2 class="mt-0">Contact</h2>
+                <h2 class="mt-0">Contact Support</h2>
                 <hr class="divider my-4" />
-                <p class="text-muted mb-5">Apabila terdapat hal yang perlu ditanyakan silahkan untuk menghubungi pihak IT Pusat</p>
+                <p class="text-muted mb-5"> Apabila terdapat hal yang perlu ditanyakan silahkan untuk menghubungi Tim IT </p>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-4 ml-auto text-center mb-5 mb-lg-0">
                 <i class="fas fa-phone fa-3x mb-3 text-muted"></i>
-                <div>+62 838-8562-496</div>
+                <div>+62 838-6630-6912</div>
             </div>
             <div class="col-lg-4 mr-auto text-center">
                 <i class="fas fa-envelope fa-3x mb-3 text-muted"></i>
