@@ -26,7 +26,7 @@
         <div class="row">
             <div class="col-lg-4 ml-auto text-center mb-5 mb-lg-0">
                 <i class="fas fa-phone fa-3x mb-3 text-muted"></i>
-                <div>+62 838-6630-6912</div>
+                <div><a class="d-block" href="https://api.whatsapp.com/send/?phone=%2B6283866306912&text&type=phone_number&app_absent=0">+62 838-6630-6912</a></div>
             </div>
             <div class="col-lg-4 mr-auto text-center">
                 <i class="fas fa-envelope fa-3x mb-3 text-muted"></i>
