@@ -10,6 +10,7 @@ class Peminjaman extends CI_Controller
   public function __construct()
   {
     parent::__construct();
+    is_logged_in();
     // load model
     $this->load->model(array('Barangpeminjaman_model', 'Userapproval_model', 'Peminjaman_model', 'Cabang_model'));
   }
