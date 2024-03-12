@@ -36,10 +36,10 @@
                     </form>
                     <hr>
                     <div class="text-center">
-                      <a class="small" href="<?= base_url('auth/forgotpassword'); ?>">Lupa Password?</a>
+                      <a class="small">Perlu Bantuan ?</a>
                     </div>
                     <div class="text-center">
-                      <a class="small" href="<?= site_url('auth'); ?>">Sudah punya akun?, Masuk Sekarang!</a>
+                      <a class="small" href="wa.me/+6283866306912">Hubungi Tim IT Sekarang!</a>
                     </div>
                   </div>
                 </div>

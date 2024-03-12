@@ -16,11 +16,10 @@
                                 </div>
                                 <form class="user" method="post" action="<?= base_url('auth'); ?>">
                                     <div class="form-group">
-                                        <input type="text" class="form-control form-control-user" id="email" name="email" placeholder="Enter Email"
-                                        value="<?= set_value('email'); ?>">
+                                        <input type="text" class="form-control form-control-user" id="email" name="email" placeholder="Enter Email" value="<?= set_value('email'); ?>">
                                         <?= form_error('email', '<small class="text-danger pl-3">', '</small>'); ?>
                                     </div>
-                                        <div class="form-group">
+                                    <div class="form-group">
                                         <input type="password" class="form-control form-control-user" id="password" name="password" placeholder="Password">
                                         <?= form_error('password', '<small class="text-danger pl-3">', '</small>'); ?>
                                     </div>
@@ -30,10 +29,10 @@
                                 </form>
                                 <hr>
                                 <div class="text-center">
-                                    <a class="small" href="<?= base_url('auth/forgotpassword'); ?>">Lupa Password?</a>
+                                    <a class="small">Perlu Bantuan ?</a>
                                 </div>
                                 <div class="text-center">
-                                    <a class="small" href="<?= site_url('auth/registration'); ?>">Daftar Sekarang!</a>
+                                    <a class="small" href="wa.me/+6283866306912">Hubungi Tim IT Sekarang!</a>
                                 </div>
                             </div>
                         </div>
