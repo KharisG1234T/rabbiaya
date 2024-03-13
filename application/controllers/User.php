@@ -183,7 +183,7 @@ class User extends CI_Controller
     {
         $data['title'] = 'Ganti Password';
         $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-
+        $data['id'] = false;
         $this->form_validation->set_rules('new_password1', 'Password Baru', 'required|trim|min_length[5]|matches[new_password2]', [
             'required' => 'Silahkan Masukan Password Baru Anda!',
             'min_length' => 'Password terlalu pendek, minimal 5 karakter!',
@@ -220,6 +220,7 @@ class User extends CI_Controller
     public function changepassworduser($id)
     {
         $data['title'] = 'Change Password';
+        $data['id'] = $id;
         $data['user'] = $this->db->get_where('user', ['id' => $id])->row_array();
 
         // Validasi Form

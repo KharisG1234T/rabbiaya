@@ -11,7 +11,13 @@
     <div class="col-md-6 mb-3">
         <div class="card shadow h-100 py-2">
             <div class="card-body">
-                <form action="<?= base_url('user/changepassword'); ?>" method="post">
+                <?php
+                    $formUrl = base_url("user/changepassword");
+                    if($id != false) {
+                        $formUrl = base_url("user/changepassworduser/") . $id;
+                    }
+                ?>
+                <form action="<?=  $formUrl ?>" method="post">
                     <div class="form-group">
                         <label for="new_password1">Password Baru</label>
                         <input type="password" class="form-control" id="new_password1" name="new_password1">

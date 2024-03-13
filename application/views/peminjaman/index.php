@@ -207,6 +207,7 @@ $user = $this->session->userdata();
 
   function filter() {
     let status = "<?= $status ?>"
+    let roleId = '<?=$user["role_id"]?>'
 
     // yang boleh ada filter by status hanya di halaman index (default staus ALL)
     if (status == "ALL") {
@@ -216,8 +217,8 @@ $user = $this->session->userdata();
       tgl_awal: $("#fTglAwal").val(),
       tgl_akhir: $("#fTglAkhir").val(),
       status: status,
-      from: $("#fFrom").val(),
-      direction: $("#fDirection").val()
+      from: roleId == '2' ? "ALL" : $("#fFrom").val(),
+      direction: roleId == '2' ? "ALL" : $("#fDirection").val()
     }
 
     dataTable.clear();
