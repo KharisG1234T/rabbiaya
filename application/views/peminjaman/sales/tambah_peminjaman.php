@@ -55,12 +55,12 @@
                       </select>
                     </div>
                   </div>
-                <!-- <?php  } else {
+                 <?php  } else {
                   $area = $this->session->userdata('area');
                   $areaId = $area[0]["area_id"];
                 ?>
                   <input type="hidden" class="form-control" name="from" value="<?= $areaId ?>" id="from" placeholder="Dari" require>
-                <?php } ?> -->
+                <?php } ?> 
                 <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
                   <div class="kosong">
                     <input type="text" class="form-control" name="number" id="number" placeholder="Nomor" readonly value="<?= date('m') ?>/PB/<?= date('y') ?>">

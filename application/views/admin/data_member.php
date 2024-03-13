@@ -51,9 +51,7 @@
                                     <?php else : ?> <?= 'Purchasing' ?> <?php endif; ?> <br>
                                 </td>
                                 <td>
-                                    <!-- <?php var_dump($um["area"]); ?> -->
                                     <?php foreach ($um['area'] as $key => $area) {
-
                                         if ($key == (count($um["area"]) - 1)) {
                                             echo ($area['area']);
                                         } elseif (count($um["area"]) > 1) {
@@ -76,11 +74,16 @@
                                     <a class="badge badge-primary" style="font-size:14px;" href="<?= site_url('admin/detailmember/' . $um['id']); ?>">Detail</a>
                                     <a class="badge badge-success" style="font-size:14px;" href="<?= site_url('admin/editmember/' . $um['id']); ?>">Perbarui</a>
                                     <a class="badge badge-danger" style="font-size:14px;" href="#!" onclick="deleteConfirm('<?= site_url('admin/deletemember/' . $um['id']); ?>')">Hapus</a>
+
+                                    <!-- Tambahkan tombol Edit Profile dan Change Password di sini -->
+                                    <a class="badge badge-info" style="font-size:14px;" href="<?= site_url('user/editprofile/' . $um['id']); ?>">Edit Profile</a>
+                                    <a class="badge badge-warning" style="font-size:14px;" href="<?= site_url('user/changepassworduser/' . $um['id']); ?>">Change Password</a>
                                 </td>
                             </tr>
                             <?php $index++; ?>
                         <?php endforeach; ?>
                     </tbody>
+
                 </table>
             </div>
         </div>

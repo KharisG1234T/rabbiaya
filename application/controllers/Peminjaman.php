@@ -167,7 +167,7 @@ class Peminjaman extends CI_Controller
         }
 
         // Bukan Sales dan PM
-        if ($itemArray["status"] == "PROCESS" && in_array($this->session->userdata('role_id'), array(1, 2, 3, 8, 9, 10))) {
+        if ($itemArray["status"] == "PROCESS" && in_array($this->session->userdata('role_id'), array(1, 3, 8, 9, 10))) {
           $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/reject/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-minus"></i>&nbsp;&nbsp; Tolak</a>';
         }
 
