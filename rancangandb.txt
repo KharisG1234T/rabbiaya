@@ -1,0 +1,51 @@
+official_trip
+	id
+	user_id		(sales)
+	request_date	(tgl pengajuan)
+	departure_date	(tgl berangkat)
+	destination	(tujuan)
+	total_amount	(diambil dari total amount keselururan trip detail)
+	level_id	(level approve, 1 = koor, 2 = headreg, 3 = hrd. default NULL)
+	status		ENUM['PENDING', 'PROCESS', 'APPROVE', 'REJECT'] default pending ketika si save, ketika sales melakukan pengajuan. status jadi process. update approve/reject tiap ada yg memberikan action
+	created_at	(current date)
+	deleted_at	(NULLABLE)
+	
+official_trip_detail
+	id
+	official_trip_id
+	official_trip_activity_id
+	remark		(keterangan)
+	qty
+	is_food		(mengikuti activity, jika activy dipilih makan, otomatis dia checked, ENUM ['YES', 'NO'])
+	duration	(jumlah hari)
+	amount		(biaya isi manual)
+	total_amount	(isi otomatis dari duration * amount)
+	created_at	(current date)
+	deleted_at	(NULLABLE)
+	
+official_trip_destination
+	id
+	official_trip_id
+	name
+	destination
+	remark		(keterangan)
+	ticket_number
+	created_at	(current date)
+	deleted_at	(NULLABLE)
+	
+official_trip_approval
+	id
+	official_trip_id
+	user_id
+	level_id	(level approve, 1 = koor, 2 = headreg, 3 = hrd)
+	status		ENUM('APPROVE', 'REJECT')
+	created_at	(current date)
+	deleted_at	(NULLABLE)
+	
+	
+official_trip_activity (untuk master deskripsi trip)
+	id
+	name
+	remark
+	created_at	(current date)
+	deleted_at	(NULLABLE)
