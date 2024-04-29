@@ -18,7 +18,7 @@ class Peminjaman extends CI_Controller
   // load view list
   public function index()
   {
-    $data['title'] = 'List Peminjaman';
+    $data['title'] = 'List Pengajuan RAB';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'ALL';
     $data['cabangs'] = $this->Cabang_model->getAll();
@@ -26,13 +26,13 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/index', $data);
+    $this->load->view('pengajuan/index', $data);
     $this->load->view('templates/admin_footer');
   }
 
   function archieve()
   {
-    $data['title'] = 'List Archieve Peminjaman FPB';
+    $data['title'] = 'List Archieve Pengajuan RAB';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'ALL';
     $data['cabangs'] = $this->Cabang_model->getAll();
@@ -40,7 +40,7 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/archieve', $data);
+    $this->load->view('pengajuan/archieve', $data);
     $this->load->view('templates/admin_footer');
   }
 
@@ -60,21 +60,16 @@ class Peminjaman extends CI_Controller
       $from = "ALL";
     }
 
-    $direction = $this->input->get("direction");
-    if ($direction == "") {
-      $direction = "ALL";
-    }
-
     $isArchieve = false;
 
     $order_by = 'kode_pengajuan';  // Kolom untuk sorting
     $order_direction = 'desc';
     $searchValue = '';
 
-    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve);
+    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $isArchieve);
     $data = $this->_persingData($data);
 
-    $this->load->view("peminjaman/export", [
+    $this->load->view("pengajuan/export", [
       'tgl_awal' => $tgl_awal,
       'tgl_akhir' => $tgl_akhir,
       'data' => $data
@@ -93,9 +88,7 @@ class Peminjaman extends CI_Controller
       $itemArray['no'] = $idx + 1;
       switch ($itemArray['status']) {
         case "PROCESS":
-          $itemArray['keterangan_sku'] = $this->Peminjaman_model->checkSkuComplete($itemArray['id_peminjaman']) ? 'Di Approve Oleh : ' : 'Belum Komplit Terjawab PM';
-
-          $userApprovalData = $this->Peminjaman_model->getUserApprovalByPeminjamanId($itemArray['id_peminjaman']);
+          $userApprovalData = $this->Peminjaman_model->getUserApprovalByPengajuanId($itemArray['official_trip_id']);
 
           if ($userApprovalData) {
             $userApprovals = [];
@@ -106,20 +99,20 @@ class Peminjaman extends CI_Controller
             }
             $itemArray['userApprovals'] = implode(' ', $userApprovals);
           } else {
-            $itemArray['userApprovals'] = 'Belum Komplit Terjawab PM';
+            $itemArray['userApprovals'] = 'Pengajuan Anda Sedang Proses Persetujuan';
           }
           break;
         case "SUCCESS":
-          $itemArray['keterangan_sku'] = "<small class='badge badge-success'>Pengajuan Selesai</small>";
-          $itemArray['userApprovals'] = "<small class='badge badge-success'></small>";
+          $itemArray['userApprovals'] = "<small class='badge badge-success'>Pengajuan Selesai</small>";
+
           break;
         case "PENDING": // Tambahkan case untuk status "PENDING"
-          $itemArray['keterangan_sku'] = "<small class='badge badge-warning'>Menunggu Persetujuan</small>";
-          $itemArray['userApprovals'] = "<small class='badge badge-warning'></small>";
+          $itemArray['userApprovals'] = "<small class='badge badge-warning'>Menunggu Persetujuan</small>";
+
           break;
         default:
-          $itemArray['keterangan_sku'] = "<small class='badge badge-danger'>Di Tolak</small>";
-          $itemArray['userApprovals'] = "<small class='badge badge-danger'></small>";
+          $itemArray['userApprovals'] = "<small class='badge badge-danger'>Pengajuan Anda Di Tolak</small>";
+
           break;
       }
 
@@ -207,22 +200,21 @@ class Peminjaman extends CI_Controller
     $tgl_akhir = $this->input->get('tgl_akhir');
     $status = $this->input->get("status") ?? "ALL";
     $from = $this->input->get('from')  ?? "ALL";
-    $direction = $this->input->get("direction")  ?? "ALL";
     $isArchieve = false;
     $order_by = $this->input->get('data') ?? 'kode_pengajuan';  // Kolom untuk sorting
     $order_direction = $this->input->get("order[0][dir]") ?? 'desc';      // Arah sorting
 
     // Dapatkan data dari model dengan penambahan sorting
     $searchValue = $this->input->get('search')['value'] ?? '';
-    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve);
+    $data = $this->Pengajuan_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $isArchieve);
     $outputData = $this->_persingData($data);
 
 
     // Buat array untuk menyimpan data yang akan dikirimkan ke DataTables
     $output = array(
       "draw" => $draw,
-      "recordsTotal" => $this->Peminjaman_model->getCountAll(),
-      "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve),
+      "recordsTotal" => $this->Pengajuan_model->getCountAll(),
+      "recordsFiltered" => $this->Pengajuan_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $from, $isArchieve),
       "data" => $outputData,
     );
 
@@ -240,7 +232,6 @@ class Peminjaman extends CI_Controller
     $tgl_awal = $this->input->get('tgl_awal');
     $tgl_akhir = $this->input->get('tgl_akhir');
     $from = $this->input->get('from')  ?? "ALL";
-    $direction = $this->input->get("direction")  ?? "ALL";
     $status = $this->input->get("status") ?? "ALL";
     $order_by = $this->input->get('data') ?? 'kode_pengajuan';  // Kolom untuk sorting
     $order_direction = $this->input->get("order[0][dir]") ?? 'desc';      // Arah sorting
@@ -248,15 +239,15 @@ class Peminjaman extends CI_Controller
     // Dapatkan data dari model dengan penambahan sorting
     $searchValue = $this->input->get('search')['value'] ?? '';
     $isArchieve = true;
-    $data = $this->Peminjaman_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve);
+    $data = $this->Pengajuan_model->getAll($status, $start, $length, $order_by, $order_direction, $searchValue, $tgl_awal, $tgl_akhir, $from, $isArchieve);
     $outputData = $this->_persingData($data, $isArchieve);
 
 
     // Buat array untuk menyimpan data yang akan dikirimkan ke DataTables
     $output = array(
       "draw" => $draw,
-      "recordsTotal" => $this->Peminjaman_model->getCountAll("ALL", "", "", "", "", "", $isArchieve),
-      "recordsFiltered" => $this->Peminjaman_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $from, $direction, $isArchieve),
+      "recordsTotal" => $this->Pengajuan_model->getCountAll("ALL", "", "", "", "", "", $isArchieve),
+      "recordsFiltered" => $this->Pengajuan_model->getCountFiltered($status, $searchValue, $tgl_awal, $tgl_akhir, $from, $isArchieve),
       "data" => $outputData,
     );
 
@@ -268,7 +259,7 @@ class Peminjaman extends CI_Controller
   public function new()
   {
     // Mendapatkan data pengguna dan informasi lainnya
-    $data['title'] = 'List Peminjaman Terbaru';
+    $data['title'] = 'List Pengajuan RAB Terbaru';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'PENDING';
     $data['cabangs'] = $this->Cabang_model->getAll();
@@ -277,7 +268,7 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/index', $data);
+    $this->load->view('pengajuan/index', $data);
     $this->load->view('templates/admin_footer');
   }
 
@@ -285,7 +276,7 @@ class Peminjaman extends CI_Controller
 
   public function onprocess()
   {
-    $data['title'] = 'List Peminjaman Di Proses';
+    $data['title'] = 'List Pengajuan RAB Di Proses';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'PROCESS';
     $data['cabangs'] = $this->Cabang_model->getAll();
@@ -293,14 +284,14 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/index', $data);
+    $this->load->view('pengajuan/index', $data);
     $this->load->view('templates/admin_footer');
   }
 
 
   public function rejected()
   {
-    $data['title'] = 'List Peminjaman Di Tolak';
+    $data['title'] = 'List Pengajuan RAB Di Tolak';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'REJECTED';
     $data['cabangs'] = $this->Cabang_model->getAll();
@@ -308,13 +299,13 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/index', $data);
+    $this->load->view('pengajuan/index', $data);
     $this->load->view('templates/admin_footer');
   }
 
   public function success()
   {
-    $data['title'] = 'List Peminjaman Sukses';
+    $data['title'] = 'List Pengajuan RAB Sukses';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['status'] = 'SUCCESS';
     $data['cabangs'] = $this->Cabang_model->getAll();
@@ -322,7 +313,7 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar', $data);
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/index', $data);
+    $this->load->view('pengajuan/index', $data);
     $this->load->view('templates/admin_footer');
   }
 
@@ -332,9 +323,9 @@ class Peminjaman extends CI_Controller
   public function add()
   {
     if (!in_array($this->session->userdata('role_id'), [1, 2])) {
-      redirect(base_url() . '/peminjaman');
+      redirect(base_url() . '/pengajuan');
     }
-    $data['title'] = 'Tambah Peminjaman';
+    $data['title'] = 'Tambah Pengajuan RAB';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['cabangs'] = $this->Cabang_model->getAll();
 
@@ -342,7 +333,7 @@ class Peminjaman extends CI_Controller
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/sales/tambah_peminjaman', $data);
+    $this->load->view('pengajuan/sales/tambah_pengajuan', $data);
     $this->load->view('templates/admin_footer');
   }
 
@@ -367,153 +358,135 @@ class Peminjaman extends CI_Controller
     $area = $this->session->userdata('area');
     $areaId = $area[0]["area_id"];
 
-    $dataPeminjaman = array(
-      'id_cabang' => $this->input->post('direction'),
-      'id_user' => $roleId == "1" ? $this->input->post('userId') : $userId, // jika admin, ambil value dari view
-      'from' => $roleId == "1" ? $this->input->post('from') : $areaId, // jika admin, ambil value dari view
-      'date' => date('Y-m-d'),
-      'number' => $this->input->post('number'),
-      'closingdate' => $this->input->post('closingDate'),
-      'note' => $this->input->post('note'),
-      'dinas' => $this->input->post('dinas'),
-      'lokasi' => $this->input->post('lokasi')
+    $dataPengajuan = array(
+      'user_id' => $roleId == "1" ? $this->input->post('userId') : $userId,
+      'area_id' => $roleId == "1" ? $this->input->post('from') : $areaId,
+      'request_date' => date('Y-m-d'),
+      'departure_date' => date('Y-m-d'),
+      'destination' => $this->input->post('destination'),
+      'total_amount' => $this->input->post('total_amount'),
+      'level_id' => $this->input->post('level_id')
     );
 
-    $peminjamanId = $this->Peminjaman_model->save($dataPeminjaman);
+    $PengajuanId = $this->Pengajuan_model->save($dataPengajuan);
 
     // Setelah peminjaman disimpan, ambil ID peminjaman yang baru
-    $newKodePengajuan = $this->Peminjaman_model->generateKodePengajuan($peminjamanId);
+    $newKodePengajuan = $this->Pengajuan_model->generateKodePengajuan($PengajuanId);
 
-    $dataPeminjaman['kode_pengajuan'] = $newKodePengajuan; // Set kode pengajuan dengan nilai baru
+    $dataPengajuan['kode_pengajuan'] = $newKodePengajuan; // Set kode pengajuan dengan nilai baru
 
-    $this->Peminjaman_model->update($dataPeminjaman, $peminjamanId);
+    $this->Pengajuan_model->update($dataPengajuan, $PengajuanId);
 
-    $barang = $this->input->post('barang');
-    foreach ($barang as $item) {
+    $official_trip_activity = $this->input->post('official_trip_activity');
+    foreach ($official_trip_activity as $trip_activity) {
       $data = array(
-        'id_peminjaman' => $peminjamanId,
-        'sku' => '',
-        'nama' => $item['name'],
-        'harga' => $item["price"],
-        'qty' => $item["qty"],
-        'jumlah' => $item["total"],
-        'stok_po' => '',
-        'maks_delivery' => $item['maks'],
+        'name' => $trip_activity['name'],
+        'remark' => $trip_activity["remark"],
       );
-      $this->Barangpeminjaman_model->save($data);
+      $this->Official_trip_activity_model->save($data);
     }
 
-    $payloadUserApproval = array(
-      'createdat' => date('Y-m-d'),
-      'id_peminjaman' => $peminjamanId,
-      'id_user' => $this->session->userdata('id'),
+    $official_trip_destination = $this->input->post('official_trip_destination');
+    foreach ($official_trip_destination as $trip_destination) {
+      $data = array(
+        'official_trip_id' => $official_trip_id,
+        'name' => $trip_destination['name'],
+        'destination' => $trip_destination["destination"],
+        'remark' => $trip_destination["remark"],
+        'ticket_number' => $trip_destination["ticket_number"],
+      );
+      $this->Official_trip_destination_model->save($data);
+    }
+
+    $official_trip_detail = $this->input->post('official_trip_detail');
+    foreach ($official_trip_detail as $trip_detail) {
+      $data = array(
+        'official_trip_id' => $official_trip_id,
+        'official_trip_activity_id' => $official_trip_activity_id,
+        'remark' => $trip_detail["remark"],
+        'qty' => $trip_detail["qty"],
+        'is_food' => $trip_detail["is_food"],
+        'duration' => $trip_detail["duration"],
+        'amount' => $trip_detail["amount"],
+        'total_amount' => $trip_detail["total_amount"],
+      );
+      $this->Official_trip_detail_model->save($data);
+    }
+
+
+    $payloadOfficialTripApproval = array(
+      'created_at' => date('Y-m-d'),
+      'official_trip_id' => $official_trip_id,
+      'user_id' => $this->session->userdata('id'),
     );
 
-    $resultId = $this->Userapproval_model->save($payloadUserApproval);
+    $resultId = $this->Official_trip_approval_model->save($payloadOfficialTripApproval);
   }
 
-
-
-
-  public function delete($id_peminjaman)
+  public function delete($id)
   {
     if (!in_array($this->session->userdata('role_id'), [1, 2])) {
-      redirect(base_url() . 'peminjaman');
+      redirect(base_url() . 'pengajuan');
     }
-    $this->Peminjaman_model->delete($id_peminjaman);
+    $this->Pengajuan_model->delete($id);
     $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
             Data berhasil dihapus!
         </div>');
-    redirect(base_url('peminjaman'));
+    redirect(base_url('pengajuan'));
   }
 
-  public function restore($id_peminjaman)
+  public function restore($id)
   {
     if (!in_array($this->session->userdata('role_id'), [1])) {
-      redirect(base_url() . 'peminjaman/archieve');
+      redirect(base_url() . 'pengajuan/archieve');
     }
 
-    $this->Peminjaman_model->restore($id_peminjaman);
+    $this->Pengajuan_model->restore($id);
     $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
             Data berhasil restore!
         </div>');
-    redirect(base_url('peminjaman/archieve'));
+    redirect(base_url('pengajuan/archieve'));
   }
 
-  public function edit($id_peminjaman)
+  public function edit($id)
   {
     if (!in_array($this->session->userdata('role_id'), [1, 2])) {
-      redirect(base_url() . 'peminjaman');
+      redirect(base_url() . 'pengajuan');
     }
-    $data['title'] = 'Edit Peminjaman';
+    $data['title'] = 'Edit Pengajuan RAB';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['cabangs'] = $this->Cabang_model->getAll();
-    $data['peminjaman'] = $this->Peminjaman_model->getDetail($id_peminjaman);
+    $data['pengajuan'] = $this->Pengajuan_model->getDetail($id);
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/sales/edit_peminjaman', $data);
+    $this->load->view('pengajuan/sales/edit_pengajuan', $data);
     $this->load->view('templates/admin_footer');
   }
 
-  public function editcs($id_peminjaman)
-  {
-    if (!in_array($this->session->userdata('role_id'), [1, 9])) {
-      redirect(base_url() . 'peminjaman');
-    }
-    $data['title'] = 'Edit Peminjaman';
-    $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data['cabangs'] = $this->Cabang_model->getAll();
-    $data['peminjaman'] = $this->Peminjaman_model->getDetail($id_peminjaman);
-
-    $this->load->view('templates/admin_header', $data);
-    $this->load->view('templates/admin_sidebar');
-    $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/cs/edit_peminjaman', $data);
-    $this->load->view('templates/admin_footer');
-  }
-
-  public function editpurc($id_peminjaman)
-  {
-    if (!in_array($this->session->userdata('role_id'), [1, 10])) {
-      redirect(base_url() . 'peminjaman');
-    }
-    $data['title'] = 'Edit Peminjaman';
-    $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data['cabangs'] = $this->Cabang_model->getAll();
-    $data['peminjaman'] = $this->Peminjaman_model->getDetail($id_peminjaman);
-
-    $this->load->view('templates/admin_header', $data);
-    $this->load->view('templates/admin_sidebar');
-    $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/purchasing/edit_peminjaman', $data);
-    $this->load->view('templates/admin_footer');
-  }
-
-
-  public function process($id_peminjaman)
+  public function process($id)
   {
     // edit sku & po by PM
     if (!in_array($this->session->userdata('role_id'), [1, 3, 8])) {
-      redirect(base_url() . 'peminjaman');
+      redirect(base_url() . 'pengajuan');
     }
-    //check if peminjaman status isnot pending
-    $peminjaman = $this->Peminjaman_model->getById($id_peminjaman);
-    if ($peminjaman['status'] != "PENDING" && $peminjaman['status'] != "PROCESS") {
-      redirect(base_url() . 'peminjaman');
+    //check if pengajuan status isnot pending
+    $pengajuan = $this->Pengajuan_model->getById($id);
+    if ($pengajuan['status'] != "PENDING" && $pengajuan['status'] != "PROCESS") {
+      redirect(base_url() . 'pengajuan');
     }
 
-    $data['title'] = 'Edit Peminjaman';
+    $data['title'] = 'Edit Pengajuan RAB';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
     $data['cabangs'] = $this->Cabang_model->getAll();
-    $data['peminjaman'] = $this->Peminjaman_model->getDetail($id_peminjaman);
+    $data['pengajuan'] = $this->Pengajuan_model->getDetail($id);
 
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/pm/edit_peminjaman', $data);
+    $this->load->view('pengajuan/user/edit_pengajuan', $data);
     $this->load->view('templates/admin_footer');
   }
 
@@ -628,8 +601,8 @@ class Peminjaman extends CI_Controller
     $idPeminjaman = $this->input->post('id');
     $dataPeminjaman = array(
       'id_cabang' => $this->input->post('direction'),
-      // 'id_user' => $roleId == "1" ? $this->input->post('userId') : $userId, // jika admin, ambil value dari view // have bug if pm update the data. user_id will be replace with pm user_id
-      // 'from' => $roleId == "1" ? $this->input->post('from') : $areaId, // jika admin, ambil value dari view // have bug if pm update the data. areaId will be replace with pm areaId
+      'id_user' => $roleId == "1" ? $this->input->post('userId') : $userId, // jika admin, ambil value dari view
+      'from' => $roleId == "1" ? $this->input->post('from') : $areaId, // jika admin, ambil value dari view
       'date' => $this->input->post('date'),
       'number' => $this->input->post('number'),
       'closingdate' => $this->input->post('closingDate'),
@@ -639,13 +612,6 @@ class Peminjaman extends CI_Controller
       'nosq' => $this->input->post('nosq'),
       'nopo' => $this->input->post('nopo')
     );
-
-    // optional update user_id
-    // admin can update user_id of peminjaman
-    if($roleId == "1" ) {
-      $dataPeminjaman["user_id"] = $this->input->post("userId");
-      $dataPeminjaman["from"] = $this->input->post("from");
-    }
 
     $this->Peminjaman_model->update($dataPeminjaman, $idPeminjaman);
 

@@ -1,6 +1,7 @@
 official_trip
 	id
 	user_id		(sales)
+	area_id		(area sales yg mengajukan)
 	request_date	(tgl pengajuan)
 	departure_date	(tgl berangkat)
 	destination	(tujuan)
