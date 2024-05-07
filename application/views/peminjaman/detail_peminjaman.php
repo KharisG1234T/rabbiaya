@@ -194,55 +194,125 @@
                   <p class="font-weight-bold" style="background-color: yellow; display: inline-block;">Note : <?= $peminjaman['note'] ?></p>
                 </div>
               </div>
-
-              <div class="row mt-5">
-                <input type="hidden" name="" id="url_peminjaman" value="<?= base_url('peminjaman') ?>">
-                <a href="<?= base_url('peminjaman') ?>" class="btn btn-warning mr-3" data-dismiss="modal">Kembali</a>
-
+              <div class="row mt-3">
               <!-- Tombol Kebutuhan -->
               <div class="col col-md-4"></div>
-                <div class="col">
-                    <!-- admin, sales -->
-                                <?php if (in_array($user["role_id"], array(1)) || ($peminjaman['status'] == "PENDING" && in_array($user["role_id"], array(1, 2)))) { ?>
-                                    <a class="btn btn-warning mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/edit/' . $peminjaman['id_peminjaman']); ?>"><i class="fas fa fa-pen"></i> Perbarui</a>
-                                <?php } ?>
-                                <!-- admin, pm, pm manager -->
-                                <?php if (in_array($user["role_id"], array(1)) || ($peminjaman['status'] == "PENDING" || $peminjaman['status'] == "PROCESS") && in_array($user["role_id"], array(3, 8))) { ?>
-                                    <a class="btn btn-info mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/process/' . $peminjaman['id_peminjaman']); ?>"><i class="fas fa fa-file"></i> Update SKU</a>
-                                <?php } ?>
-                                <!-- admin, cs -->
-                                <?php if (in_array($user["role_id"], array(1, 9))) { ?>
-                                <a class="btn btn-info mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/editcs/' . $peminjaman['id_peminjaman']); ?>"><i class="fas fa fa-tags"></i> Update No SQ</a>
-                                <?php } ?>
-                                <!-- admin, purchasing -->
-                                <?php if (in_array($user["role_id"], array(1, 10))) { ?>
-                                <a class="btn btn-info mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/editpurc/' . $peminjaman['id_peminjaman']); ?>"><i class="fas fa fa-tags"></i> Update No PO</a>
-                                <?php } ?>
-                                <!-- is not sales and pm -->
-                                <?php if ($peminjaman['status'] == "PROCESS" && in_array($user["role_id"], array(4,5,6,7,8))) { ?>
-                                    <a class="btn btn-success mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/approve/' . $peminjaman['id_peminjaman']); ?>"><i class="fas fa fa-check-double"></i> Approve</a>
-                                <?php } ?>
-                                <!-- is not sales and pm -->
-                                <?php if ($peminjaman['status'] == "PROCESS" && !in_array($user["role_id"], array(1, 2, 3, 8, 9, 10))) { ?>
-                                    <a class="btn btn-dark mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/reject/' . $peminjaman['id_peminjaman']); ?>"><i class="fas fa fa-minus"></i> Tolak</a>
-                                <?php } ?>
-                                <!-- is admin -->
-                                <?php if ($peminjaman['status'] == "REJECTED" && $user["role_id"] == 1) { ?>
-                                    <a class="btn btn-secondary mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/unreject/' . $peminjaman['id_peminjaman']); ?>"><i class="fas fa fa-recycle"></i> Batal Tolak</a>
-                                <?php } ?>
-                                <!-- admin, sales -->
-                                <?php if (in_array($user["role_id"], array(1)) || (in_array($user["role_id"], array(2)) && $peminjaman['status'] == "PENDING")) { ?>
-                                    <a class="btn btn-danger mx-1" style="font-size:14px;" href="#!" onclick="deleteConfirm('<?= site_url('peminjaman/delete/' . $peminjaman['id_peminjaman']); ?>')"><i class="fas fa fa-trash"></i> Hapus</a>
-                                <?php } ?>
-                                <!-- admin, sales -->
-                                <?php if (in_array($user["role_id"], array(1)) || (in_array($user["role_id"], array(1, 2, 4)))) { ?>
-                                    <a class="btn btn-secondary mx-1" style="font-size:14px;" target="_blank" href="<?= site_url('peminjaman/print/' . $peminjaman['id_peminjaman']); ?>"><i class="fas fa fa-print"></i> Cetak</a>
-                                <?php } ?>
-                </div>
+              <div class="col">
+                  <!-- Tombol Perbarui -->
+                  <?php if (in_array($user["role_id"], array(1)) || ($peminjaman['status'] == "PENDING" && in_array($user["role_id"], array(1, 2)))): ?>
+                      <a class="btn btn-warning mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/edit/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-pen"></i> Perbarui
+                      </a>
+                  <?php endif; ?>
 
+                  <!-- Tombol Update SKU -->
+                  <?php if (in_array($user["role_id"], array(1)) || ($peminjaman['status'] == "PENDING" || $peminjaman['status'] == "PROCESS") && in_array($user["role_id"], array(3, 8))): ?>
+                      <a class="btn btn-info mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/process/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-file"></i> Update SKU
+                      </a>
+                  <?php endif; ?>
+
+                  <!-- Tombol Update No SQ -->
+                  <?php if (in_array($user["role_id"], array(1, 9))): ?>
+                      <a class="btn btn-info mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/editcs/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-tags"></i> Update No SQ
+                      </a>
+                  <?php endif; ?>
+
+                  <!-- Tombol Update No PO -->
+                  <?php if (in_array($user["role_id"], array(1, 10))): ?>
+                      <a class="btn btn-info mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/editpurc/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-tags"></i> Update No PO
+                      </a>
+                  <?php endif; ?>
+
+                  <!-- Tombol Approve -->
+                  <?php if ($peminjaman['status'] == "PROCESS" && in_array($user["role_id"], array(4,5,6,7,8))): ?>
+                      <a class="btn btn-success mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/approve/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-check-double"></i> Approve
+                      </a>
+                  <?php endif; ?>
+
+                  <!-- Tombol Tolak -->
+                  <?php if ($peminjaman['status'] == "PROCESS" && !in_array($user["role_id"], array(1, 2, 3, 8, 9, 10))): ?>
+                      <a class="btn btn-dark mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/reject/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-minus"></i> Tolak
+                      </a>
+                  <?php endif; ?>
+
+                  <!-- Tombol Batal Tolak -->
+                  <?php if ($peminjaman['status'] == "REJECTED" && $user["role_id"] == 1): ?>
+                      <a class="btn btn-secondary mx-1" style="font-size:14px;" href="<?= site_url('peminjaman/unreject/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-recycle"></i> Batal Tolak
+                      </a>
+                  <?php endif; ?>
+
+                  <!-- Tombol Hapus -->
+                  <?php if (in_array($user["role_id"], array(1)) || (in_array($user["role_id"], array(2)) && $peminjaman['status'] == "PENDING")): ?>
+                      <a class="btn btn-danger mx-1" style="font-size:14px;" href="#!" onclick="deleteConfirm('<?= site_url('peminjaman/delete/' . $peminjaman['id_peminjaman']); ?>')">
+                          <i class="fas fa fa-trash"></i> Hapus
+                      </a>
+                  <?php endif; ?>
+
+                  <!-- Tombol Cetak -->
+                  <?php if (in_array($user["role_id"], array(1)) || (in_array($user["role_id"], array(1, 2, 4)))): ?>
+                      <a class="btn btn-secondary mx-1" style="font-size:14px;" target="_blank" href="<?= site_url('peminjaman/print/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-print"></i> Cetak
+                      </a>
+                  <?php endif; ?>
+
+                  <!-- Tombol Cetak Eksternal -->
+                  <?php if (in_array($user["role_id"], array(1)) || (in_array($user["role_id"], array(1, 2, 4)))): ?>
+                      <a class="btn btn-secondary mx-1" style="font-size:14px;" target="_blank" href="<?= site_url('peminjaman/print2/' . $peminjaman['id_peminjaman']); ?>">
+                          <i class="fas fa fa-print"></i> Cetak Eksternal
+                      </a>
+                  <?php endif; ?>
               </div>
 
+
             </div>
+            <div class="file-info">
+              <!-- Form untuk mengunggah file PDF -->
+              <form action="<?= site_url('peminjaman/upload_file'); ?>" method="POST" enctype="multipart/form-data">
+  <!-- Input tersembunyi untuk mengirimkan peminjaman_id -->
+              <input type="hidden" name="peminjaman_id" value="<?= $peminjaman['id_peminjaman'] ?>" /> <!-- Pastikan $peminjaman_id diisi -->
+
+              <div class="upload-section">
+                <label for="pdf-upload" class="btn btn-primary" style="font-size:14px;">
+                  <i class="fas fa-upload"></i> Unggah FPB Dinas
+                </label>
+                <input id="pdf-upload" type="file" name="pdf_file" accept=".pdf" style="display: none;" onchange="this.form.submit()">
+              </div>
+            </form>
+
+            </div>
+            <div class="file-info">
+              <?php if (isset($file_data) && $file_data): ?>
+                <!-- Jika ada file, tampilkan nama file -->
+                <p>Lampiran : <?= htmlspecialchars($file_data->file_name); ?></p>
+              <?php else: ?>
+                <!-- Jika tidak ada file -->
+                <p>Belum Ada Lampiran</p>
+              <?php endif; ?>
+            </div>
+
+            <div class="file-info">
+            <?php if (isset($file_data) && $file_data): ?>
+              <!-- Tombol untuk mengunduh file -->
+              <a class="btn btn-success" href="<?= base_url($file_data->file_url); ?>" download>
+                <i class="fas fa-download"></i> Unduh Lampiran : <?= htmlspecialchars($file_data->file_name); ?>
+              </a>
+            <?php else: ?>
+              <!-- Jika tidak ada file -->
+              <p>Lengkapi Lampiran FPB Anda</p>
+            <?php endif; ?>
+          </div>
+
+                        
+            <div class="row mt-5">
+                <input type="hidden" name="" id="url_peminjaman" value="<?= base_url('peminjaman') ?>">
+                <a href="<?= base_url('peminjaman') ?>" class="btn btn-warning mr-3" data-dismiss="modal">Kembali</a>
+              </div>
             <!-- /.card-body -->
           </div>
           <!-- /.card -->

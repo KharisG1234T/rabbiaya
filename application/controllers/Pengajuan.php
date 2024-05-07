@@ -12,7 +12,17 @@ class Peminjaman extends CI_Controller
     parent::__construct();
     is_logged_in();
     // load model
-    $this->load->model(array('Barangpeminjaman_model', 'Userapproval_model', 'Peminjaman_model', 'Cabang_model'));
+    $this->load->model([
+        'Official_trip_activity_model',
+        'Official_trip_approval_model',
+        'Official_trip_destination_model',
+        'Official_trip_detail_model',
+        'Userapproval_model',
+        'Pengajuan_model',
+        'Cabang_model',
+        'Area_model'
+    ]);
+    $this->load->library('form_validation');
   }
 
   // load view list
@@ -88,7 +98,7 @@ class Peminjaman extends CI_Controller
       $itemArray['no'] = $idx + 1;
       switch ($itemArray['status']) {
         case "PROCESS":
-          $userApprovalData = $this->Peminjaman_model->getUserApprovalByPengajuanId($itemArray['official_trip_id']);
+          $userApprovalData = $this->Pengajuan_model->getUserApprovalByPengajuanId($itemArray['official_trip_id']);
 
           if ($userApprovalData) {
             $userApprovals = [];
@@ -126,57 +136,54 @@ class Peminjaman extends CI_Controller
       if ($isArchieve) {
         // btn action for list archieve data
         if ($this->session->userdata("role_id") == 1) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/restore/') . $itemArray['id_peminjaman'] . '" onclick="return confirm(' . "'Anda yakin ingin me-restore data ini?'" . ')"><i class="fas fa fa-recycle"></i>&nbsp;&nbsp; Restore</a>';
+          $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/restore/') . $itemArray['official_trip_id'] . '" onclick="return confirm(' . "'Anda yakin ingin me-restore data ini?'" . ')"><i class="fas fa fa-recycle"></i>&nbsp;&nbsp; Restore</a>';
         }
       } else {
         // btn action for list actived data
 
         // Menggabungkan nilai dari kolom userApprovals dan keterangan_sku
-        $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/detail/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-eye"></i>&nbsp;&nbsp; Detail</a>';
+        $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/detail/') . $itemArray['official_trip_id'] . '"><i class="fas fa fa-eye"></i>&nbsp;&nbsp; Detail</a>';
 
         // Admin atau Sales
-        if (in_array($this->session->userdata('role_id'), array(1)) || ($itemArray["status"] == "PENDING" && in_array($this->session->userdata('role_id'), array(1, 2)))) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/edit/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-pen"></i>&nbsp;&nbsp; Perbarui</a>';
-        }
+        $roleId = $this->session->userdata('role_id');
+        $action = '';
 
-        // Admin, PM, atau PM Manager
-        if (in_array($this->session->userdata('role_id'), array(1)) || ($itemArray["status"] == "PENDING" || $itemArray["status"] == "PROCESS") && in_array($this->session->userdata('role_id'), array(3, 8))) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/process/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-file"></i>&nbsp;&nbsp; Update SKU</a>';
+        // Jika status item adalah "PENDING", hanya role_id 1 atau 2 yang bisa mengedit.
+        if ($itemArray["status"] == "PENDING") {
+            if (in_array($roleId, array(1, 2))) {
+                $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/edit/') . $itemArray['official_trip_id'] . '"><i class="fas fa fa-pen"></i>&nbsp;&nbsp; Perbarui</a>';
+            }
         }
-
-        // Admin atau CS
-        if (in_array($this->session->userdata('role_id'), array(1, 9))) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/editcs/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-tags"></i>&nbsp;&nbsp; Update No SQ</a>';
-        }
-
-        // Admin atau Purchasing
-        if (in_array($this->session->userdata('role_id'), array(1, 10))) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/editpurc/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-tags"></i>&nbsp;&nbsp; Update No PO</a>';
+        // Jika status item bukan "PENDING", hanya role_id 1, 4, 5, atau 11 yang bisa mengedit.
+        else {
+            if (in_array($roleId, array(1, 4, 5, 11))) {
+                $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/edit/') . $itemArray['official_trip_id'] . '"><i class="fas fa fa-pen"></i>&nbsp;&nbsp; Perbarui</a>';
+            }
         }
 
         // Bukan Sales dan PM
         if ($itemArray["status"] == "PROCESS" && in_array($this->session->userdata('role_id'), array(4, 5, 6, 7, 8))) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/approve/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-check-double"></i>&nbsp;&nbsp; Approve</a>';
+          $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/approve/') . $itemArray['official_trip_id'] . '"><i class="fas fa fa-check-double"></i>&nbsp;&nbsp; Approve</a>';
         }
 
         // Bukan Sales dan PM
         if ($itemArray["status"] == "PROCESS" && in_array($this->session->userdata('role_id'), array(1, 3, 8, 9, 10))) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/reject/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-minus"></i>&nbsp;&nbsp; Tolak</a>';
+          $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/reject/') . $itemArray['official_trip_id'] . '"><i class="fas fa fa-minus"></i>&nbsp;&nbsp; Tolak</a>';
         }
 
         // Admin
         if ($itemArray["status"] == "REJECTED" && in_array($this->session->userdata('role_id'), array(1))) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/unreject/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-recycle"></i>&nbsp;&nbsp; Batal Tolak</a>';
+          $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/unreject/') . $itemArray['official_trip_id'] . '"><i class="fas fa fa-recycle"></i>&nbsp;&nbsp; Batal Tolak</a>';
         }
 
         // Admin atau Sales
         if ($this->session->userdata('role_id') == 1) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/delete/') . $itemArray['id_peminjaman'] . '" onclick="return confirm(' . "'Anda yakin ingin menghapus data ini?'" . ')"><i class="fas fa fa-trash"></i>&nbsp;&nbsp; Hapus</a>';
+          $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/delete/') . $itemArray['official_trip_id'] . '" onclick="return confirm(' . "'Anda yakin ingin menghapus data ini?'" . ')"><i class="fas fa fa-trash"></i>&nbsp;&nbsp; Hapus</a>';
         }
 
         // Admin atau Sales
         if (in_array($this->session->userdata('role_id'), array(1, 2, 4))) {
-          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/print/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-print"></i>&nbsp;&nbsp; Cetak</a>';
+          $action .= '<a class="dropdown-item" href="' . base_url('pengajuan/print/') . $itemArray['official_trip_id'] . '"><i class="fas fa fa-print"></i>&nbsp;&nbsp; Cetak</a>';
         }
       }
 
@@ -319,7 +326,7 @@ class Peminjaman extends CI_Controller
 
   // end load view list
 
-  // page tambah peminjaman
+  // page tambah pengajuan
   public function add()
   {
     if (!in_array($this->session->userdata('role_id'), [1, 2])) {
@@ -423,6 +430,78 @@ class Peminjaman extends CI_Controller
     $resultId = $this->Official_trip_approval_model->save($payloadOfficialTripApproval);
   }
 
+    // update pengajuan
+    public function update()
+    {
+      $userId = $this->session->userdata("id");
+      $roleId = $this->session->userdata('role_id');
+      $area = $this->session->userdata('area');
+      $areaId = $area[0]["area_id"];
+  
+      $idPengajuan = $this->input->post('id');
+      $dataPengajuan = array(
+        'user_id' => $roleId == "1" ? $this->input->post('userId') : $userId,
+        'area_id' => $roleId == "1" ? $this->input->post('from') : $areaId,
+        'request_date' => date('Y-m-d'),
+        'departure_date' => date('Y-m-d'),
+        'destination' => $this->input->post('destination'),
+        'total_amount' => $this->input->post('total_amount'),
+        'level_id' => $this->input->post('level_id')
+      );
+  
+      $this->Peminjaman_model->update($dataPengajuan, $idPengajuan);
+  
+      // hapus barang lama
+      $dataPengajuan['kode_pengajuan'] = $newKodePengajuan; // Set kode pengajuan dengan nilai baru
+
+      $this->Pengajuan_model->update($dataPengajuan, $PengajuanId);
+  
+      $official_trip_activity = $this->input->post('official_trip_activity');
+      foreach ($official_trip_activity as $trip_activity) {
+        $data = array(
+          'name' => $trip_activity['name'],
+          'remark' => $trip_activity["remark"],
+        );
+        $this->Official_trip_activity_model->save($data);
+      }
+  
+      $official_trip_destination = $this->input->post('official_trip_destination');
+      foreach ($official_trip_destination as $trip_destination) {
+        $data = array(
+          'official_trip_id' => $official_trip_id,
+          'name' => $trip_destination['name'],
+          'destination' => $trip_destination["destination"],
+          'remark' => $trip_destination["remark"],
+          'ticket_number' => $trip_destination["ticket_number"],
+        );
+        $this->Official_trip_destination_model->save($data);
+      }
+  
+      $official_trip_detail = $this->input->post('official_trip_detail');
+      foreach ($official_trip_detail as $trip_detail) {
+        $data = array(
+          'official_trip_id' => $official_trip_id,
+          'official_trip_activity_id' => $official_trip_activity_id,
+          'remark' => $trip_detail["remark"],
+          'qty' => $trip_detail["qty"],
+          'is_food' => $trip_detail["is_food"],
+          'duration' => $trip_detail["duration"],
+          'amount' => $trip_detail["amount"],
+          'total_amount' => $trip_detail["total_amount"],
+        );
+        $this->Official_trip_detail_model->save($data);
+      }
+  
+  
+      $payloadOfficialTripApproval = array(
+        'created_at' => date('Y-m-d'),
+        'official_trip_id' => $official_trip_id,
+        'user_id' => $this->session->userdata('id'),
+      );
+  
+      $resultId = $this->Official_trip_approval_model->save($payloadOfficialTripApproval);
+    }
+  
   public function delete($id)
   {
     if (!in_array($this->session->userdata('role_id'), [1, 2])) {
@@ -491,83 +570,68 @@ class Peminjaman extends CI_Controller
   }
 
 
-  public function detail($id_peminjaman)
+  public function detail($id_pengajuan)
   {
-    $data['title'] = 'Detail Peminjaman';
+    $data['title'] = 'Detail Pengajuan';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data['peminjaman'] = $this->Peminjaman_model->getDetail($id_peminjaman);
-    $data['peminjaman']['approve']['sales'] = ['ttd' => '', 'createdat' => ''];
-    $data['peminjaman']['approve']['pm'] = ['ttd' => 'waiting.png', 'createdat' => ''];
-    $data['peminjaman']['approve']['ks'] = ['ttd' => 'waiting.png', 'createdat' => ''];
-    $data['peminjaman']['approve']['hr'] = ['ttd' => 'waiting.png', 'createdat' => ''];
-    $data['peminjaman']['approve']['ms'] = ['ttd' => 'waiting.png', 'createdat' => ''];
-    $data['peminjaman']['approve']['mo'] = ['ttd' => 'waiting.png', 'createdat' => ''];
+    $data['pengajuan'] = $this->Pengajuan_model->getDetail($id_pengajuan);
+    $data['pengajuan']['approve']['sales'] = ['ttd' => '', 'createdat' => ''];
+    $data['pengajuan']['approve']['ks'] = ['ttd' => 'waiting.png', 'createdat' => ''];
+    $data['pengajuan']['approve']['hr'] = ['ttd' => 'waiting.png', 'createdat' => ''];
+    $data['pengajuan']['approve']['hrd'] = ['ttd' => 'waiting.png', 'createdat' => ''];
 
-    foreach ($data['peminjaman']['userapproval']['users'] as $user) {
+
+    foreach ($data['pengajuan']['userapproval']['users'] as $user) {
       if ($user['role_id'] == 2) {
-        $data['peminjaman']['approve']['sales'] = $user;
-      }
-      if ($user['role_id'] == 8) {
-        $data['peminjaman']['approve']['pm'] = $user;
+        $data['pengajuan']['approve']['sales'] = $user;
       }
       if ($user['role_id'] == 4) {
-        $data['peminjaman']['approve']['ks'] = $user;
+        $data['pengajuan']['approve']['ks'] = $user;
       }
       if ($user['role_id'] == 5) {
-        $data['peminjaman']['approve']['hr'] = $user;
+        $data['pengajuan']['approve']['hr'] = $user;
       }
-      if ($user['role_id'] == 6) {
-        $data['peminjaman']['approve']['ms'] = $user;
-      }
-      if ($user['role_id'] == 7) {
-        $data['peminjaman']['approve']['mo'] = $user;
+      if ($user['role_id'] == 11) {
+        $data['pengajuan']['approve']['hrd'] = $user;
       }
     }
 
     // unset array userapproval
-    unset($data['peminjaman']['userapproval']);
+    unset($data['pengajuan']['userapproval']);
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
     $this->load->view('templates/admin_topbar', $data);
-    $this->load->view('peminjaman/detail_peminjaman', $data);
+    $this->load->view('pengajuan/detail_pengajuan', $data);
     $this->load->view('templates/admin_footer');
   }
 
-  public function print($id_peminjaman)
+  public function print($id)
   {
-    $data['title'] = 'Detail Peminjaman';
+    $data['title'] = 'Detail Pengajuan';
     $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data['peminjaman'] = $this->Peminjaman_model->getDetail($id_peminjaman);
-    $data['peminjaman']['approve']['sales'] = ['ttd' => '', 'createdat' => ''];
-    $data['peminjaman']['approve']['pm'] = ['ttd' => 'waiting.png', 'createdat' => ''];
-    $data['peminjaman']['approve']['ks'] = ['ttd' => 'waiting.png', 'createdat' => ''];
-    $data['peminjaman']['approve']['hr'] = ['ttd' => 'waiting.png', 'createdat' => ''];
-    $data['peminjaman']['approve']['ms'] = ['ttd' => 'waiting.png', 'createdat' => ''];
-    $data['peminjaman']['approve']['mo'] = ['ttd' => 'waiting.png', 'createdat' => ''];
+    $data['pengajuan'] = $this->Pengajuan_model->getDetail($id_pengajuan);
+    $data['pengajuan']['approve']['sales'] = ['ttd' => '', 'createdat' => ''];
+    $data['pengajuan']['approve']['ks'] = ['ttd' => 'waiting.png', 'createdat' => ''];
+    $data['pengajuan']['approve']['hr'] = ['ttd' => 'waiting.png', 'createdat' => ''];
+    $data['pengajuan']['approve']['hrd'] = ['ttd' => 'waiting.png', 'createdat' => ''];
 
     foreach ($data['peminjaman']['userapproval']['users'] as $user) {
       if ($user['role_id'] == 2) {
-        $data['peminjaman']['approve']['sales'] = $user;
-      }
-      if ($user['role_id'] == 8) {
-        $data['peminjaman']['approve']['pm'] = $user;
+        $data['pengajuan']['approve']['sales'] = $user;
       }
       if ($user['role_id'] == 4) {
-        $data['peminjaman']['approve']['ks'] = $user;
+        $data['pengajuan']['approve']['ks'] = $user;
       }
       if ($user['role_id'] == 5) {
-        $data['peminjaman']['approve']['hr'] = $user;
+        $data['pengajuan']['approve']['hr'] = $user;
       }
-      if ($user['role_id'] == 6) {
-        $data['peminjaman']['approve']['ms'] = $user;
-      }
-      if ($user['role_id'] == 7) {
-        $data['peminjaman']['approve']['mo'] = $user;
+      if ($user['role_id'] == 11) {
+        $data['pengajuan']['approve']['hrd'] = $user;
       }
     }
 
-    $pdf = $this->load->view("peminjaman/print", $data, true);
+    $pdf = $this->load->view("pengajuan/print", $data, true);
 
     $dompdf = new Dompdf();
 
@@ -590,260 +654,149 @@ class Peminjaman extends CI_Controller
     //$dompdf->stream();
     $dompdf->stream('my.pdf', array('Attachment' => 0));
   }
-  // update peminjaman
-  public function update()
-  {
-    $userId = $this->session->userdata("id");
-    $roleId = $this->session->userdata('role_id');
-    $area = $this->session->userdata('area');
-    $areaId = $area[0]["area_id"];
 
-    $idPeminjaman = $this->input->post('id');
-    $dataPeminjaman = array(
-      'id_cabang' => $this->input->post('direction'),
-      'id_user' => $roleId == "1" ? $this->input->post('userId') : $userId, // jika admin, ambil value dari view
-      'from' => $roleId == "1" ? $this->input->post('from') : $areaId, // jika admin, ambil value dari view
-      'date' => $this->input->post('date'),
-      'number' => $this->input->post('number'),
-      'closingdate' => $this->input->post('closingDate'),
-      'note' => $this->input->post('note'),
-      'dinas' => $this->input->post('dinas'),
-      'lokasi' => $this->input->post('lokasi'),
-      'nosq' => $this->input->post('nosq'),
-      'nopo' => $this->input->post('nopo')
-    );
+  public function approve_trip()
+      {
+          // Validasi input
+          $this->form_validation->set_rules('official_trip_id', 'Official Trip ID', 'required|integer');
+          $this->form_validation->set_rules('user_id', 'User ID', 'required|integer');
 
-    $this->Peminjaman_model->update($dataPeminjaman, $idPeminjaman);
-
-    // hapus barang lama
-    $barangLama = $this->Barangpeminjaman_model->getAllBy($idPeminjaman);
-    foreach ($barangLama as $barang) {
-      $this->Barangpeminjaman_model->delete($barang['id_bp']);
-    }
-
-    // update / tambah barang baru
-    $barang = $this->input->post('barang');
-    foreach ($barang as $item) {
-      $data = array(
-        'id_peminjaman' => $idPeminjaman,
-        'sku' => $item['sku'],
-        'nama' => $item['name'],
-        'harga' => $item["price"],
-        'qty' => $item["qty"],
-        'jumlah' => $item["total"],
-        'stok_po' => $item['stok_po'],
-        'maks_delivery' => $item['maks'],
-      );
-      $this->Barangpeminjaman_model->save($data);
-    }
-  }
-
-
-  // set sku, stok/po, status="process"
-  public function setstatus()
-  {
-    $idPeminjaman = $this->input->post('id');
-    $barang = $this->input->post('barang');
-    foreach ($barang as $item) {
-      $id = $item['id'];
-      $data = array(
-        'sku' => $item['sku'],
-        'stok_po' => $item['stokpo'],
-      );
-      $this->Barangpeminjaman_model->update($id, $data);
-    }
-    // update status
-    $this->db->where('id_peminjaman', $idPeminjaman)->update('peminjaman', ['status' => 'PROCESS']);
-  }
-
-  public function approve($id_peminjaman)
-  {
-    //selain admin dan sales bisa approve
-    if (!in_array($this->session->userdata('role_id'), [1, 2])) {
-      //check if peminjaman status isnot process
-      $peminjaman = $this->Peminjaman_model->getById($id_peminjaman);
-      if ($peminjaman['status'] !== "PROCESS") {
-        redirect(base_url() . 'peminjaman');
-      }
-
-      $userapproval = $this->db->from('userapproval')->where(['id_peminjaman' => $id_peminjaman, 'status' => 'APPROVE'])->get()->result_array();
-
-      $exist = false;
-      foreach ($userapproval as $user) {
-        $data = $this->db->select('role_id')->from('user')->where('id', $user['id_user'])->get()->row_array();
-        if ($data['role_id'] == $this->session->userdata('role_id')) {
-          $exist = true;
-        }
-      }
-
-      // cek apakah sudah pernah di setujui oleh role yg sama atau belum
-      if ($exist) {
-        $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
-          Sudah pernah di setujui!
-        </div>');
-        redirect(base_url('peminjaman'));
-      } else {
-        $data = array(
-          'createdat' => date('Y-m-d'),
-          'id_peminjaman' => $id_peminjaman,
-          'id_user' => $this->session->userdata('id'),
-          'status' => 'APPROVE',
-        );
-
-        $this->Userapproval_model->save($data);
-        if (count($userapproval) == 3) {
-          $this->db->where('id_peminjaman', $id_peminjaman)->update('peminjaman', ['status' => 'SUCCESS']);
-        }
-        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
-          Pengajuan berhasil di setujui!
-        </div>');
-        redirect(base_url('peminjaman'));
-      }
-    } else {
-      redirect(base_url() . 'peminjaman');
-    }
-  }
-
-  public function reject($id_peminjaman)
-  {
-    if (!in_array($this->session->userdata('role_id'), [1, 2, 3])) {
-
-      //check if peminjaman status isnot process
-      $peminjaman = $this->Peminjaman_model->getById($id_peminjaman);
-      if ($peminjaman['status'] !== "PROCESS") {
-        redirect(base_url() . 'peminjaman');
-      }
-
-      $rejectedlist = $this->db->from('userapproval')->where(['id_peminjaman' => $id_peminjaman, 'status' => 'REJECT'])->get()->result_array();
-
-      $exist = false;
-      foreach ($rejectedlist as $user) {
-        $data = $this->db->select('role_id')->from('user')->where('id', $user['id_user'])->get()->row_array();
-        if ($data['role_id'] == $this->session->userdata('role_id')) {
-          $exist = true;
-        }
-      }
-
-      // cek apakah sudah pernah di reject oleh role yg sama atau belum
-      if ($exist) {
-        $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
-          Sudah pernah di tolak!
-        </div>');
-        redirect(base_url('peminjaman'));
-      } else {
-        // delete data with status approve if exist
-        $userapproval = $this->db->from('userapproval')->where(['id_peminjaman' => $id_peminjaman, 'status' => 'APPROVE'])->get()->result_array();
-        foreach ($userapproval as $user) {
-          $data = $this->db->select('role_id')->from('user')->where('id', $user['id_user'])->get()->row_array();
-          if ($data['role_id'] == $this->session->userdata('role_id')) {
-            $this->Userapproval_model->delete($user['id']);
+          if ($this->form_validation->run() === FALSE) {
+              // Jika validasi gagal, kembalikan pesan kesalahan
+              return $this->output->set_content_type('application/json')->set_output(json_encode([
+                  'status' => 'error',
+                  'message' => validation_errors()
+              ]));
           }
+
+          $official_trip_id = $this->input->post('official_trip_id');
+          $user_id = $this->input->post('user_id');
+
+          // Pastikan official_trip ada dan memiliki status 'PROCESS'
+          $official_trip = $this->Official_trip_activity_model->get_by_id($official_trip_id); // Pastikan metode ini ada
+          if (!$official_trip || $official_trip->status !== 'PROCESS') {
+              return $this->output->set_content_type('application/json')->set_output(json_encode([
+                  'status' => 'error',
+                  'message' => 'Official trip tidak valid atau tidak dalam status PROCESS'
+              ]));
+          }
+
+          // Update status official_trip ke 'APPROVE'
+          $update_data = ['status' => 'APPROVE'];
+          $this->Official_trip_activity_model->update($official_trip_id, $update_data); // Pastikan metode ini ada
+
+          // Tambahkan entri ke official_trip_approval
+          $approval_data = [
+              'official_trip_id' => $official_trip_id,
+              'user_id' => $user_id,
+              'level_id' => 1, // Koordinator level
+              'status' => 'APPROVE',
+              'created_at' => date('Y-m-d H:i:s') // Timestamp sekarang
+          ];
+          $this->Official_trip_approval_model->insert($approval_data); // Pastikan metode ini ada
+
+          // Kembalikan respons sukses
+          return $this->output->set_content_type('application/json')->set_output(json_encode([
+              'status' => 'success',
+              'message' => 'Official trip telah di-approve oleh koor'
+          ]));
+      }
+  }
+
+
+  public function reject($official_trip_id)
+    {
+        // Periksa apakah pengguna memiliki peran yang tepat
+        $allowed_roles = [4, 5, 11]; // Misalnya, 1 = koor, 2 = headreg, 3 = HRD
+        if (!in_array($this->session->userdata('role_id'), $allowed_roles)) {
+            redirect(base_url('official_trip'));
         }
 
-        // add approval status reject
-        $data = array(
-          'createdat' => date('Y-m-d'),
-          'id_peminjaman' => $id_peminjaman,
-          'id_user' => $this->session->userdata('id'),
-          'status' => 'REJECT',
-        );
+        // Periksa apakah official_trip memiliki status PROCESS
+        $official_trip = $this->Official_trip_activity_model->get_by_id($official_trip_id);
+        if (!$official_trip || $official_trip->status !== 'PROCESS') {
+            redirect(base_url('official_trip'));
+        }
 
-        $this->Userapproval_model->save($data);
-        $this->db->where('id_peminjaman', $id_peminjaman)->update('peminjaman', ['status' => 'REJECTED']);
+        // Periksa apakah sudah pernah direject oleh peran yang sama
+        $rejected_list = $this->db->from('official_trip_approval')
+            ->where(['official_trip_id' => $official_trip_id, 'status' => 'REJECT'])
+            ->get()
+            ->result_array();
 
-        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
-          Pengajuan berhasil di ditolak!
-        </div>');
-        redirect(base_url('peminjaman'));
-      }
-    } else {
-      redirect(base_url() . 'peminjaman');
+        $exist = false;
+        foreach ($rejected_list as $user) {
+            $data = $this->db->select('level_id')
+                ->from('user')
+                ->where('id', $user['user_id'])
+                ->get()
+                ->row_array();
+            if ($data['level_id'] == $this->session->userdata('role_id')) {
+                $exist = true;
+                break;
+            }
+        }
+
+        if ($exist) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Sudah pernah ditolak oleh peran yang sama!</div>');
+            redirect(base_url('official_trip'));
+        } else {
+            // Jika belum direject, lakukan operasi reject
+            $approval_data = [
+                'created_at' => date('Y-m-d H:i:s'),
+                'official_trip_id' => $official_trip_id,
+                'user_id' => $this->session->userdata('id'),
+                'level_id' => $this->session->userdata('role_id'),
+                'status' => 'REJECT'
+            ];
+
+            $this->Official_trip_approval_model->insert($approval_data); // Pastikan metode ini ada
+
+            // Update status official_trip ke REJECTED
+            $this->db->where('official_trip_id', $official_trip_id)->update('official_trip', ['status' => 'REJECTED']);
+
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Pengajuan berhasil ditolak!</div>');
+            redirect(base_url('official_trip'));
+        }
     }
-  }
 
-  public function unreject($id_peminjaman)
-  {
-    if ($this->session->userdata('role_id') != 1) {
-      redirect(base_url() . 'peminjaman');
+
+    public function unreject($official_trip_id)
+    {
+        // Periksa apakah pengguna memiliki hak akses untuk melakukan unreject
+        $allowed_roles = [1]; // Contoh, hanya koordinator dan headreg yang bisa unreject
+        if (!in_array($this->session->userdata('role_id'), $allowed_roles)) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Anda tidak memiliki hak untuk membatalkan penolakan!</div>');
+            redirect(base_url('official_trip'));
+        }
+    
+        // Periksa apakah official_trip memiliki status REJECTED
+        $official_trip = $this->Official_trip_activity_model->get_by_id($official_trip_id);
+        if (!$official_trip || $official_trip->status !== 'REJECTED') {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Pengajuan tidak dalam status ditolak!</div>');
+            redirect(base_url('official_trip'));
+        }
+    
+        // Ubah status official_trip menjadi PROCESS
+        $this->Official_trip_activity_model->update($official_trip_id, ['status' => 'PROCESS']);
+    
+        // Hapus semua entri di official_trip_approval dengan status REJECT untuk ID ini
+        $this->db->delete('official_trip_approval', ['official_trip_id' => $official_trip_id, 'status' => 'REJECT']);
+    
+        // Tambahkan entri approval dengan status UNREJECT
+        $approval_data = [
+            'created_at' => date('Y-m-d H:i:s'),
+            'official_trip_id' => $official_trip_id,
+            'user_id' => $this->session->userdata('id'),
+            'level_id' => $this->session->userdata('role_id'),
+            'status' => 'UNREJECT'
+        ];
+    
+        $this->Official_trip_approval_model->insert($approval_data); // Pastikan metode ini ada
+    
+        // Beri pesan sukses
+        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Penolakan telah dibatalkan. Status kembali menjadi PROSES.</div>');
+        redirect(base_url('official_trip'));
     }
-
-    //set status peminjaman to process
-    $this->Peminjaman_model->update(['status' => 'PROCESS'], $id_peminjaman);
-
-    //delete userapproval with status reject
-    $this->db->delete('userapproval', ['id_peminjaman' => $id_peminjaman, 'status' => 'REJECT']);
-
-    $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
-          Pembatal Tolak berhasil!
-        </div>');
-    redirect(base_url('peminjaman'));
-  }
-
-  // 
-  // add cabang
-  public function addcabang()
-  {
-    $data['title'] = 'Daftar Cabang';
-    $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-    $data['nama_cabang'] = $this->db->get('cabang')->result_array();
-
-    $this->form_validation->set_rules('nama_cabang', 'Nama Cabang', 'required', [
-      'required' => 'Nama Cabang harus di isi !'
-    ]);
-
-    if ($this->form_validation->run() == false) {
-      $this->load->view('templates/admin_header', $data);
-      $this->load->view('templates/admin_sidebar');
-      $this->load->view('templates/admin_topbar', $data);
-      $this->load->view('cabang/index', $data);
-      $this->load->view('templates/admin_footer');
-    } else {
-      $this->db->insert('cabang', ['nama_cabang' => $this->input->post('nama_cabang')]);
-      $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
-            Cabang baru berhasil ditambahkan!</div>');
-      redirect('cabang');
-    }
-  }
-
-  public function editcabang($id_cabang = null)
-  {
-    $this->form_validation->set_rules('nama_cabang', 'Nama Cabang', 'required', [
-      'required' => 'Nama Cabang tidak boleh kosong !'
-    ]);
-
-    if ($this->form_validation->run() == false) {
-      $data['title'] = 'Cabang Edit';
-      $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-      $data['nama_cabang'] = $this->db->get_where('cabang', ['id_cabang' => $id_cabang])->row_array();
-
-      $this->load->view('templates/admin_header', $data);
-      $this->load->view('templates/admin_sidebar');
-      $this->load->view('templates/admin_topbar', $data);
-      $this->load->view('cabang/edit_cabang', $data);
-      $this->load->view('templates/admin_footer');
-      $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
-            Gagal merubah cabang!</div>');
-    } else {
-      $data = [
-        'id_cabang' => $this->input->post('id_cabang'),
-        'nama_cabang' => $this->input->post('nama_cabang')
-      ];
-
-      $this->db->update('cabang', $data, ['id_cabang' => $id_cabang]);
-      $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
-            Cabang berhasil dirubah !</div>');
-      redirect('cabang');
-    }
-  }
-
-  // delete cabang
-  public function deletecabang($id_cabang = null)
-  {
-    if (!isset($id_cabang)) show_404();
-
-    $cabangs = $this->Cabang_model;
-    if ($cabangs->delete($id_cabang)) {
-      redirect('cabang');
-    }
-  }
+    
 }

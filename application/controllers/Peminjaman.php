@@ -185,6 +185,10 @@ class Peminjaman extends CI_Controller
         if (in_array($this->session->userdata('role_id'), array(1, 2, 4))) {
           $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/print/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-print"></i>&nbsp;&nbsp; Cetak</a>';
         }
+
+        if (in_array($this->session->userdata('role_id'), array(1, 2, 4))) {
+          $action .= '<a class="dropdown-item" href="' . base_url('peminjaman/print2/') . $itemArray['id_peminjaman'] . '"><i class="fas fa fa-print"></i>&nbsp;&nbsp; Cetak Eksternal</a>';
+        }
       }
 
       $action .= '</div>';
@@ -529,6 +533,8 @@ class Peminjaman extends CI_Controller
     $data['peminjaman']['approve']['hr'] = ['ttd' => 'waiting.png', 'createdat' => ''];
     $data['peminjaman']['approve']['ms'] = ['ttd' => 'waiting.png', 'createdat' => ''];
     $data['peminjaman']['approve']['mo'] = ['ttd' => 'waiting.png', 'createdat' => ''];
+    $file_data = $this->db->get_where('peminjaman_file_asset', ['peminjaman_id' => $id_peminjaman])->row();
+    $data['file_data'] = $file_data;  //
 
     foreach ($data['peminjaman']['userapproval']['users'] as $user) {
       if ($user['role_id'] == 2) {
@@ -550,9 +556,8 @@ class Peminjaman extends CI_Controller
         $data['peminjaman']['approve']['mo'] = $user;
       }
     }
-
     // unset array userapproval
-    unset($data['peminjaman']['userapproval']);
+    unset($data['peminjaman']['userapproval']);  // Ganti dengan nama view Anda
 
     $this->load->view('templates/admin_header', $data);
     $this->load->view('templates/admin_sidebar');
@@ -615,8 +620,101 @@ class Peminjaman extends CI_Controller
     $dompdf->render();
     // Output the generated PDF to Browser
     //$dompdf->stream();
-    $dompdf->stream('my.pdf', array('Attachment' => 0));
+    $dompdf->stream('Dokumen FPB.pdf', array('Attachment' => 0));
   }
+
+  public function print2($id_peminjaman)
+  {
+    $data['title'] = 'Detail Peminjaman';
+    $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
+    $data['peminjaman'] = $this->Peminjaman_model->getDetail($id_peminjaman);
+    $data['peminjaman']['approve']['sales'] = ['ttd' => '', 'createdat' => ''];
+
+    foreach ($data['peminjaman']['userapproval']['users'] as $user) {
+      if ($user['role_id'] == 2) {
+        $data['peminjaman']['approve']['sales'] = $user;
+      }
+    }
+
+    $pdf = $this->load->view("peminjaman/print2", $data, true);
+
+    $dompdf = new Dompdf();
+
+    //mengatur opsi dompdf
+    $option = array(
+      'enable_css_parsing' => true,
+      'enable_javascript' => true,
+      'enable_remote' => true,
+      //tambah opsi lain disini
+    );
+    $dompdf->set_options($option);
+
+
+    $dompdf->loadHtml($pdf);
+    // (Optional) Setup the paper size and orientation
+    $dompdf->setPaper('A4', 'landscape');
+    // Render the HTML as PDF
+    $dompdf->render();
+    // Output the generated PDF to Browser
+    //$dompdf->stream();
+    $dompdf->stream('Dokumen FPB Dinas.pdf', array('Attachment' => 0));
+  }
+
+  public function upload_file() {
+    // Verifikasi bahwa peminjaman_id tersedia dan valid
+      $peminjaman_id = $this->input->post('peminjaman_id');
+      if (empty($peminjaman_id)) {
+          echo "ID peminjaman tidak diberikan.";
+          return;  // Kembali lebih awal jika parameter tidak ada
+      }
+
+      if (isset($_FILES['pdf_file']) && $_FILES['pdf_file']['error'] == 0) {
+          $file = $_FILES['pdf_file'];
+          $file_name = $file['name'];
+          $file_temp_path = $file['tmp_name'];
+
+          $upload_path = 'uploads/files/';
+          $file_url = $upload_path . $file_name;
+
+          // Memastikan direktori ada
+          if (!is_dir($upload_path)) {
+              mkdir($upload_path, 0755, true);
+          }
+
+          // Periksa apakah ada file lama terkait peminjaman_id
+          $file_data = $this->db->get_where('peminjaman_file_asset', ['peminjaman_id' => $peminjaman_id])->row();
+
+          if ($file_data) {
+              // Hapus file lama dari sistem jika ada
+              if (file_exists($file_data->file_url)) {
+                  unlink($file_data->file_url);  // Hapus file lama
+              }
+
+              // Hapus entri file lama dari database
+              $this->db->delete('peminjaman_file_asset', ['peminjaman_id' => $peminjaman_id]);
+          }
+
+          // Pindahkan file baru ke direktori yang benar
+          if (move_uploaded_file($file_temp_path, $file_url)) {
+              // Masukkan data file baru ke database
+              $this->db->insert('peminjaman_file_asset', [
+                  'file_name' => $file_name,
+                  'file_url' => $file_url,
+                  'peminjaman_id' => $peminjaman_id,
+                  'deleted_at' => null
+              ]);
+
+              // Redirect ke halaman detail setelah unggahan berhasil
+              redirect('peminjaman/detail/' . $peminjaman_id);
+              return;  // Pastikan tidak ada output lebih lanjut
+          } else {
+              echo "Gagal mengunggah file.";  // Penanganan kesalahan saat unggahan gagal
+          }
+      } else {
+          echo "Tidak ada file yang diunggah atau ada kesalahan.";  // Penanganan jika tidak ada file atau ada kesalahan
+      }
+  }
+  
   // update peminjaman
   public function update()
   {

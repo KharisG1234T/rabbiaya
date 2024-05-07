@@ -23,7 +23,7 @@ $user = $this->session->userdata();
       <h6 class="m-0 font-weight-bold text-primary float-left"><?= $title; ?></h6>
       <h6 class="m-0 font-weight-bold text-primary float-right">
         <?php if (in_array($user["role_id"], array(1, 2))) { ?>
-          <a href="<?= site_url('/peminjaman/add') ?>"><i class="fas fa-plus"></i> Tambah Peminjaman</a>
+          <a href="<?= site_url('/pengajuan/add') ?>"><i class="fas fa-plus"></i> Ajukan RAB Biaya</a>
         <?php } ?>
       </h6>
     </div>

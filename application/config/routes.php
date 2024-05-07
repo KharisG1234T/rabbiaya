@@ -53,4 +53,5 @@ $route['default_controller'] = 'home';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['user/edit/(:num)'] = 'user/edit/$1';
+$route['peminjaman/upload_file/(:any)'] = 'peminjaman/upload_file/$1';  // Memastikan parameter diteruskan
 

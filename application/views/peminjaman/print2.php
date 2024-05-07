@@ -150,54 +150,31 @@
           <div class="col col-12 col-md-10" style="width:80%!important; margin-left: 7.5%!important;">
             <p style="border: solid 1px ; width: 30%;" >Tanggal Maksimal Closing : <?= $peminjaman['closingdate'] ?></p>
             <div class="table-responsive">
-              <table class="table table-bordered">
-                <thead class="text-center font-weight-bold">
-                  <tr>
-                    <td>Yang Mengajukan</td>
-                    <td colspan="6">Menyetujui</td>
-                  </tr>
-                </thead>
-                <tbody class="text-center">
-                  <td class="p-0">
-                    <p>Sales</p>
-                    <img src="<?= base_url('assets/img/profile/ttd/') . $peminjaman['approve']['sales']['ttd'] ?>" style="width:50px!important; height:50px!important; padding: 10px!important;">
-                  </td>
-                  <td>
-                    <p>PM</p>
-                    <img src="<?= base_url('assets/img/profile/ttd/') . $peminjaman['approve']['pm']['ttd'] ?>" style="width:50px!important; height:50px!important; padding: 10px!important;">
-                  </td>
-                  <td>
-                    <p>Koor Sales</p>
-                    <img src="<?= base_url('assets/img/profile/ttd/') . $peminjaman['approve']['ks']['ttd'] ?>" style="width:50px!important; height:50px!important; padding: 10px!important;">
-                  </td>
-                  <td>
-                    <p>Head Region</p>
-                    <img src="<?= base_url('assets/img/profile/ttd/') . $peminjaman['approve']['hr']['ttd'] ?>" style="width:50px!important; height:50px!important; padding: 10px!important;">
-                  </td>
-                  <td>
-                    <p>Manager Sales</p>
-                    <img src="<?= base_url('assets/img/profile/ttd/') . $peminjaman['approve']['ms']['ttd'] ?>" style="width:50px!important; height:50px!important; padding: 10px!important;">
-                  </td>
-                  <td>
-                    <p>Manager Operasional</p>
-                    <img src="<?= base_url('assets/img/profile/ttd/') . $peminjaman['approve']['mo']['ttd'] ?>" style="width:50px!important; height:50px!important; padding: 10px!important;">
-                  </td>
-                  <td>
-                    <p>Pak Robert</p>
-                    <div style="width:70px; height:50px; padding:10px;"> </div> 
-                  </td>
-                </tbody>
-                <tfoot>
-                  <td>tgl: <?= $peminjaman['approve']['sales']['createdat'] ?></td>
-                  <td>tgl: <?= $peminjaman['approve']['pm']['createdat'] ?></td>
-                  <td>tgl: <?= $peminjaman['approve']['ks']['createdat'] ?></td>
-                  <td>tgl: <?= $peminjaman['approve']['hr']['createdat']  ?></td>
-                  <td>tgl: <?= $peminjaman['approve']['ms']['createdat'] ?></td>
-                  <td>tgl: <?= $peminjaman['approve']['mo']['createdat'] ?></td>
-                  <td>tgl:</td>
-                </tfoot>
-              </table>
-            </div>
+                <table class="table table-bordered" style="width: 200px;"> <!-- Mengontrol lebar tabel -->
+                  <thead class="text-center font-weight-bold">
+                   
+                  </thead>
+                  <tbody class="text-center">
+                    <tr> <!-- Menambahkan <tr> untuk struktur yang benar -->
+                      <td class="p-0">
+                        <p>Sales</p>
+                        <img src="<?= base_url('assets/img/profile/ttd/') . $peminjaman['approve']['sales']['ttd'] ?>" style="width:80px; height:50px; padding:10px;">
+                      </td>
+                      <td>
+                        <p>Dinas</p>
+                        <div style="width:100px; height:50px; padding:10px;"> </div> <!-- Kotak kosong -->
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr> <!-- Tambahkan <tr> untuk struktur yang benar -->
+                      <td>tgl: <?= $peminjaman['approve']['sales']['createdat'] ?></td>
+                      <td>tgl:</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
             <p class="font-weight-bold" style="background-color: yellow; display: inline-block;">Note : <?= $peminjaman['note'] ?></p>
           </div>
         </div>

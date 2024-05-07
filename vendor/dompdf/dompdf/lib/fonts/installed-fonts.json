@@ -1,25 +1,25 @@
 {
     "font awesome 5 brands": {
-        "normal": "font_awesome_5_brands_normal_578a070e73cb3a828bb9b5b964c7aa0b"
+        "normal": "font_awesome_5_brands_normal_741dd99dd88cb18c07d80aca4859cb81"
     },
     "font awesome 5 free": {
-        "normal": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/font_awesome_5_free_normal_14125de7eaee8592146e6c9b876e2264",
-        "900": "font_awesome_5_free_900_6d11fa74d40c3071d648be04e7678b09"
+        "normal": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/font_awesome_5_free_normal_9865cf3fc0806e0252fcbda99b2b9c07",
+        "900": "font_awesome_5_free_900_7ab65089716ce9df3bf8add6f841b91d"
     },
     "nunito": {
-        "200_italic": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_200_italic_c6fe6163fa53ae06c4d278afb09f1d1e",
-        "300_italic": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_300_italic_5564b019de9ee757b8e74969231a39c6",
-        "italic": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_italic_7a5e338072de710d78e80a0b7b676e13",
-        "600_italic": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_600_italic_70540b8497fcdcad67439a1da170a6cd",
-        "bold_italic": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_bold_italic_f7385ade290a5e83b60b5666bb14efdd",
-        "800_italic": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_800_italic_18f05207d6823bed1efe267692280109",
-        "900_italic": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_900_italic_7d0c00015d678bd782d128e933b0098e",
-        "200": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_200_0e1804460d708a8c8812dd2bb9a9d89f",
-        "300": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_300_ee9ff98a878d2bcec5ac60166e67ac59",
-        "normal": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_normal_51264aea5373c13e99081e0e39bbfb0d",
-        "600": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_600_260a41cb865a0435c462e0b12cc10190",
-        "bold": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_bold_a3fe31648353394ca5aaeaff65373ead",
-        "800": "\/home\/pree3128\/approval.premmiere.co.id\/vendor\/dompdf\/dompdf\/lib\/fonts\/nunito_800_85511e1b9b7db85c1ab58555a3c6922c",
-        "900": "nunito_900_cc18120a1ee07e8f88043c57178bd0cc"
+        "200_italic": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_200_italic_c6fe6163fa53ae06c4d278afb09f1d1e",
+        "300_italic": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_300_italic_5564b019de9ee757b8e74969231a39c6",
+        "italic": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_italic_7a5e338072de710d78e80a0b7b676e13",
+        "600_italic": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_600_italic_70540b8497fcdcad67439a1da170a6cd",
+        "bold_italic": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_bold_italic_f7385ade290a5e83b60b5666bb14efdd",
+        "800_italic": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_800_italic_18f05207d6823bed1efe267692280109",
+        "900_italic": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_900_italic_7d0c00015d678bd782d128e933b0098e",
+        "200": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_200_0e1804460d708a8c8812dd2bb9a9d89f",
+        "300": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_300_ee9ff98a878d2bcec5ac60166e67ac59",
+        "normal": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_normal_51264aea5373c13e99081e0e39bbfb0d",
+        "600": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_600_260a41cb865a0435c462e0b12cc10190",
+        "bold": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_bold_a3fe31648353394ca5aaeaff65373ead",
+        "800": "nunito_800_85511e1b9b7db85c1ab58555a3c6922c",
+        "900": "D:\\xampp\\htdocs\\rab\\vendor\\dompdf\\dompdf\/lib\/fonts\/nunito_900_cc18120a1ee07e8f88043c57178bd0cc"
     }
 }

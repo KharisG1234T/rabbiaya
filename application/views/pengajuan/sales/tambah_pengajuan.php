@@ -51,7 +51,7 @@
                   <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
                     <div class="kosong">
                       <select class="form-control" id="submitter" name="submitter" require>
-                        <option value="">Peminjam...</option>
+                        <option value="">Yang Mengajukan...</option>
                       </select>
                     </div>
                   </div>
