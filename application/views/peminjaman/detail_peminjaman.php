@@ -14,7 +14,7 @@
           <div class="card-header bg-light">
             <div class="text-center">
               <h4 class="font-weight-bold">FORM PEMINJAMAN DATA PUSAT</h4>
-              <p class="font-weight-bold">Kode Pengajuan : <?= $peminjaman['kode_pengajuan'] ?></p>
+              <p class="font-weight-bold">Kode Peminjaman Barang : <?= $peminjaman['kode_pengajuan'] ?></p>
             </div>
           </div>
           <!-- /.card-header -->
@@ -114,7 +114,6 @@
                   </div>
                 </div>
               </div>
-
               <div class="form-group row">
                 <div class="col col-md-1"></div>
                 <div class="col col-sm-12 col-md-10 col-lg-4">

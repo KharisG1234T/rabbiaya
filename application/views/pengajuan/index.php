@@ -99,14 +99,12 @@ $user = $this->session->userdata();
             <tr>
               <th>Action</th>
               <th>Kode Pengajuan</th>
-              <th>Peminjam</th>
-              <th>Kepada Dinas</th>
-              <th>Peminjaman Dari</th>
+              <th>Diajukan Oleh</th>
               <th>Tujuan</th>
+              <th>Dari Cabang</th>
+              <th>Jenis RAB</th>
               <th>Tanggal Dibuat</th>
-              <th>Closing Date</th>
               <th>Catatan</th>
-              <th>Nomor SQ</th>
               <th>Status</th>
               <th>Keterangan Status</th>
             </tr>
@@ -142,10 +140,10 @@ $user = $this->session->userdata();
   })
 
   function renderTable(filter) {
-    let url = "<?php echo site_url('peminjaman/datatable') ?>";
+    let url = "<?php echo site_url('pengajuan/datatable') ?>";
 
     if (filter) url += '?' + filter
-    dataTable = $('#peminjamanTable').DataTable({
+    dataTable = $('#pengajuanTable').DataTable({
       processing: true,
       serverSide: true,
       responsive: true,
@@ -167,26 +165,17 @@ $user = $this->session->userdata();
           "data": "name"
         },
         {
-          "data": "dinas"
+          "data": "destination"
         },
         {
           "data": "from_cb"
         },
         {
-          "data": "to_cb"
-        },
-        {
           "data": "date"
         },
         {
-          "data": "closingdate"
-        },
-        {
-          "data": "note",
+          "data": "remark",
           // "width": "550px"
-        },
-        {
-          "data": "nosq"
         },
         {
           "data": "status"
@@ -194,13 +183,25 @@ $user = $this->session->userdata();
         {
           "data": null,
           "render": function(data, type, row) {
-            // Menggabungkan nilai dari kolom userApprovals dan keterangan_sku
-            var combinedData = row.keterangan_sku + ' ' + row.userApprovals;
+            // Asumsikan 'row.userApprovals' adalah string atau array dari approval users
+            var approvals = row.userApprovals;
 
-            // Mengembalikan nilai gabungan
-            return combinedData;
+            // Misalnya, kita ingin menambahkan beberapa format atau menampilkan informasi secara berbeda
+            var formattedApprovals = '';
+
+            if (Array.isArray(approvals)) {
+              formattedApprovals = approvals.join(', '); // Jika dalam bentuk array, gabungkan dengan koma
+            } else if (typeof approvals === 'string') {
+              formattedApprovals = approvals; // Jika sudah dalam bentuk string, langsung kembalikan
+            } else {
+              formattedApprovals = 'Pengajuan Ini Belum di Approve'; // Jika bukan array atau string, tampilkan pesan default
+            }
+
+            // Kembalikan nilai yang diformat
+            return formattedApprovals;
           }
-        },
+        }
+
       ],
     });
   };

@@ -4,7 +4,7 @@ require FCPATH . '/vendor/autoload.php';
 
 use Dompdf\Dompdf;
 
-class Peminjaman extends CI_Controller
+class Pengajuan extends CI_Controller
 {
 
   public function __construct()
@@ -701,7 +701,6 @@ class Peminjaman extends CI_Controller
               'message' => 'Official trip telah di-approve oleh koor'
           ]));
       }
-  }
 
 
   public function reject($official_trip_id)
@@ -761,42 +760,52 @@ class Peminjaman extends CI_Controller
     }
 
 
-    public function unreject($official_trip_id)
-    {
-        // Periksa apakah pengguna memiliki hak akses untuk melakukan unreject
-        $allowed_roles = [1]; // Contoh, hanya koordinator dan headreg yang bisa unreject
-        if (!in_array($this->session->userdata('role_id'), $allowed_roles)) {
-            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Anda tidak memiliki hak untuk membatalkan penolakan!</div>');
-            redirect(base_url('official_trip'));
-        }
-    
-        // Periksa apakah official_trip memiliki status REJECTED
-        $official_trip = $this->Official_trip_activity_model->get_by_id($official_trip_id);
-        if (!$official_trip || $official_trip->status !== 'REJECTED') {
-            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Pengajuan tidak dalam status ditolak!</div>');
-            redirect(base_url('official_trip'));
-        }
-    
-        // Ubah status official_trip menjadi PROCESS
-        $this->Official_trip_activity_model->update($official_trip_id, ['status' => 'PROCESS']);
-    
-        // Hapus semua entri di official_trip_approval dengan status REJECT untuk ID ini
-        $this->db->delete('official_trip_approval', ['official_trip_id' => $official_trip_id, 'status' => 'REJECT']);
-    
-        // Tambahkan entri approval dengan status UNREJECT
-        $approval_data = [
-            'created_at' => date('Y-m-d H:i:s'),
-            'official_trip_id' => $official_trip_id,
-            'user_id' => $this->session->userdata('id'),
-            'level_id' => $this->session->userdata('role_id'),
-            'status' => 'UNREJECT'
-        ];
-    
-        $this->Official_trip_approval_model->insert($approval_data); // Pastikan metode ini ada
-    
-        // Beri pesan sukses
-        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Penolakan telah dibatalkan. Status kembali menjadi PROSES.</div>');
-        redirect(base_url('official_trip'));
-    }
-    
+  public function unreject($official_trip_id)
+  {
+      // Periksa apakah pengguna memiliki hak akses untuk melakukan unreject
+      $allowed_roles = [1]; // Contoh, hanya koordinator dan headreg yang bisa unreject
+      if (!in_array($this->session->userdata('role_id'), $allowed_roles)) {
+          $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Anda tidak memiliki hak untuk membatalkan penolakan!</div>');
+          redirect(base_url('official_trip'));
+      }
+  
+      // Periksa apakah official_trip memiliki status REJECTED
+      $official_trip = $this->Official_trip_activity_model->get_by_id($official_trip_id);
+      if (!$official_trip || $official_trip->status !== 'REJECTED') {
+          $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Pengajuan tidak dalam status ditolak!</div>');
+          redirect(base_url('official_trip'));
+      }
+  
+      // Ubah status official_trip menjadi PROCESS
+      $this->Official_trip_activity_model->update($official_trip_id, ['status' => 'PROCESS']);
+  
+      // Hapus semua entri di official_trip_approval dengan status REJECT untuk ID ini
+      $this->db->delete('official_trip_approval', ['official_trip_id' => $official_trip_id, 'status' => 'REJECT']);
+  
+      // Tambahkan entri approval dengan status UNREJECT
+      $approval_data = [
+          'created_at' => date('Y-m-d H:i:s'),
+          'official_trip_id' => $official_trip_id,
+          'user_id' => $this->session->userdata('id'),
+          'level_id' => $this->session->userdata('role_id'),
+          'status' => 'UNREJECT'
+      ];
+  
+      $this->Official_trip_approval_model->insert($approval_data); // Pastikan metode ini ada
+  
+      // Beri pesan sukses
+      $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Penolakan telah dibatalkan. Status kembali menjadi PROSES.</div>');
+      redirect(base_url('official_trip'));
+  }
+  
+  // API DROPDOWN AMSTER AKTIFITAS
+  public function master_activity() {
+    $data = $this->Official_trip_activity_model->getAll();
+    $result = [
+      "status" => 200,
+      "data" => $data
+    ];
+
+    echo json_encode($result);
+  }
 }

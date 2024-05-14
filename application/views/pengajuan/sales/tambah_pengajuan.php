@@ -6,7 +6,7 @@
         <div class="card">
           <div class="card-header bg-light">
             <div class="text-center">
-              <h3 class="">FORM PEMINJAMAN DATA PUSAT</h3>
+              <h3 class="">FORM PENGAJUAN RAB BIAYA PERJALANAN</h3>
             </div>
           </div>
           <!-- /.card-header -->
@@ -15,61 +15,28 @@
               <input type="hidden" value="<?= $this->session->userdata('id') ?>" name="userid" id="userid" />
               <input type="hidden" value="<?= $this->session->userdata('role_id') ?>" name="roleId" id="roleId" />
               <div class="form-group row ">
-                <input type="hidden" name="kode_pengajuan" id="kode_pengajuan" value="">
                 <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <select class="form-control" id="direction" name="direction" require>
-                      <option value="">Kepada Cabang ... </option>
-                      <?php foreach ($cabangs as $cabang) { ?>
-                        <option value="<?= $cabang['id_cabang'] ?>"><?= $cabang['nama_cabang'] ?></option>
-                      <?php } ?>
-                    </select>
+                  <div class="form-group">
+                    <label for="departure_date">Tanggal Pengajuan</label>
+                    <input type="date" class="form-control" name="request_date" id="request_date" placeholder="Tanggal Pengajuan">
                   </div>
                 </div>
                 <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <input type="text" class="form-control" name="date" id="date" placeholder="Tanggal" readonly value="<?= date('d/m/Y') ?>">
+                  <div class="form-group">
+                    <label for="departure_date">Tanggal Berangkat</label>
+                    <input type="date" class="form-control" name="departure_date" id="departure_date" placeholder="Tanggal Berangkat">
                   </div>
                 </div>
-              </div>
-              <div class="form-group row ">
-                <?php
-                $roleId = $this->session->userdata('role_id');
-                if ($roleId == "1") { ?>
-                  <!-- super agemin -->
-                  <input type="hidden" id="typeuser" value="SA">
-                  <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                    <div class="kosong">
-                      <select class="form-control" id="from" name="from" require>
-                        <option value="">Dari Cabang ...</option>
-                        <?php foreach ($cabangs as $cabang) { ?>
-                          <option value="<?= $cabang['id_area'] ?>"><?= $cabang['nama_cabang'] ?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                    <div class="kosong">
-                      <select class="form-control" id="submitter" name="submitter" require>
-                        <option value="">Yang Mengajukan...</option>
-                      </select>
-                    </div>
-                  </div>
-                 <?php  } else {
-                  $area = $this->session->userdata('area');
-                  $areaId = $area[0]["area_id"];
-                ?>
-                  <input type="hidden" class="form-control" name="from" value="<?= $areaId ?>" id="from" placeholder="Dari" require>
-                <?php } ?> 
                 <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <input type="text" class="form-control" name="number" id="number" placeholder="Nomor" readonly value="<?= date('m') ?>/PB/<?= date('y') ?>">
+                  <div class="form-group">
+                    <label for="destination">Tujuan</label>
+                    <input type="text" class="form-control" name="destination" id="destination" placeholder="Tujuan">
                   </div>
                 </div>
               </div>
               <div class="form-group row">
-                <div class="col col-10 ml-auto">
-                  <p>Dengan ini mengajukan permohonan pemakaian stock barang dari CV. Solusi Arya Prima Pusat berupa :</p>
+                <div class="col col-20 ml-auto">
+                  <p>Pengajuan RAB Biaya Perjalanan kepada Solusi Arya Prima Pusat Dengan Rincian :</p>
                 </div>
               </div>
               <div class="form-group row">
@@ -79,7 +46,7 @@
                       <thead>
                         <tr>
                           <td>Nomor</td>
-                          <td>Nama Barang</td>
+                          <td>Kegiatan / Aktivitas</td>
                           <td>Jumlah</td>
                           <td>Harga Satuan</td>
                           <td>Total Harga</td>
@@ -90,7 +57,7 @@
                       <tbody id="dynamic">
                         <tr class="tb_row">
                           <td><label>1</label></td>
-                          <td><input type="text" id="name-ikiuniqueyo" placeholder="Nama Barang" class="form-control" required /></td>
+                          <td><select class="form-control" id="activity-ikiuniqueyo" required></select>
                           <td><input type="number" id="qty-ikiuniqueyo" placeholder="QTY" onkeyup="getTotalFromQty(this)" class="form-control" required /></td>
                           <td><input type="text" id="price-ikiuniqueyo" placeholder="Harga Satuan" onkeyup="getTotalFromPrice(this)" class="form-control" required /></td>
                           <td><input type="text" id="total-ikiuniqueyo" placeholder="Total" onchange="change()" readonly class="form-control" required /></td>
@@ -155,7 +122,14 @@
   <!-- /.container-fluid -->
 </section>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js"></script>
 <script>
+  $(function () {
+      $("#request_date").val(moment().startOf("days").format("YYYY-MM-DD"));
+      $("#departure_date").val(moment().endOf("days").format("YYYY-MM-DD"));
+      getActivity(`activity-ikiuniqueyo`)
+    });
+    
   let uniqIds = ["ikiuniqueyo"]; //one default iniquid
 
   function createRandomString(length) {
@@ -190,7 +164,7 @@
     // clear select box option
     $('#submitter')
       .empty()
-      .append('<option value="">Peminjam...</option>')
+      .append('<option value="">Pengajuan dari...</option>')
 
     $.ajax({
       url: `userdropdown/${areaId}`,
@@ -262,7 +236,10 @@
       $('#dynamic').append(`
         <tr id="row-${unique}" class="tb_row"> 
           <td><label id="no-${unique}">${no}</label></td>  
-          <td><input type="text" id="name-${unique}" placeholder="Nama Barang" class="form-control" required /></td> 
+          <td>
+            <select class="form-control" id="activity-${unique}">
+            </select>
+          </td> 
           <td><input type="number" placeholder="QTY" id="qty-${unique}" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 
           <td><input type="text" placeholder="Harga Satuan" id="price-${unique}"  onkeyup="getTotalFromPrice(this)" class="form-control" required /></td> 
           <td><input type="text" placeholder="Total" id="total-${unique}" onchange="change()" readonly class="form-control" required /></td> 
@@ -272,6 +249,9 @@
 
       // update NO of list
       changeNumber()
+
+      // get master data
+      getActivity(`activity-${unique}`);
     });
 
     $(document).on('click', '.btn_remove', function() {
@@ -282,7 +262,6 @@
       change() // update total price
       changeNumber() // update number of list
     });
-
 
     $('#form').submit(function(e) {
       e.preventDefault()
@@ -338,4 +317,29 @@
         })
     })
   });
+
+  // API GET MASTER AKTIFITAS AND ADD NEW INPUT OPTION INTO DYNAMIC FORM
+  function getActivity(uniqueId) {
+    $.ajax({
+      url: "master_activity",
+      method: "GET",
+      headers: {
+          'Content-Type' : 'application/json'
+      },
+      success: function(res) {
+        res = JSON.parse(res);
+        let data = res.data;
+        let selectElm = $(`#${uniqueId}`);
+        if(res.status == 200 && data.length) {
+          data.forEach((item) => {
+            let option = $('<option></option>').attr("value", item.id).text(item.name);
+            selectElm.append(option);
+          });
+        }
+      },
+      error: function(err) {
+        console.log("error fetch master activity :", err);
+      }
+    })
+  }
 </script>

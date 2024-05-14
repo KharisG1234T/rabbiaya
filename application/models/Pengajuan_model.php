@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Peminjaman_model extends CI_Model
+class Pengajuan_model extends CI_Model
 {
 
 	public function __construct()
