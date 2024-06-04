@@ -26,7 +26,7 @@ class Peminjaman_model extends CI_Model
 		// fiele id_cabang itu relasi ke tabel cabang
 		// field from itu relasi ke tabel area
 		// ketika ingin mencari peminjaman dari cabang apa, relasikan peminjaman.from -> area -> cabang
-		
+
 		$this->db->join("area", "area.id_area = peminjaman.from", "inner");
 		$this->db->join("cabang AS cb", "cb.id_area = area.id_area", "inner");
 
@@ -49,7 +49,7 @@ class Peminjaman_model extends CI_Model
 		}
 
 		if ($from != "ALL") {
-			$this->db->where("peminjaman.from",intval($from));
+			$this->db->where("peminjaman.from", intval($from));
 		}
 
 		if ($direction != "ALL") {
@@ -100,7 +100,7 @@ class Peminjaman_model extends CI_Model
 		// fiele id_cabang itu relasi ke tabel cabang
 		// field from itu relasi ke tabel area
 		// ketika ingin mencari peminjaman dari cabang apa, relasikan peminjaman.from -> area -> cabang
-		
+
 		$this->db->join("area", "area.id_area = peminjaman.from", "inner");
 		$this->db->join("cabang AS cb", "cb.id_area = area.id_area", "inner");
 

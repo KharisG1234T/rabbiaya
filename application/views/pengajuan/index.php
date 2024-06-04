@@ -94,7 +94,7 @@ $user = $this->session->userdata();
     </div>
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table table-bordered table-hover table-striped" id="peminjamanTable" width="100%" cellspacing="0">
+        <table class="table table-bordered table-hover table-striped" id="pengajuanTable" width="100%" cellspacing="0">
           <thead class="thead-dark">
             <tr>
               <th>Action</th>
@@ -102,9 +102,9 @@ $user = $this->session->userdata();
               <th>Diajukan Oleh</th>
               <th>Tujuan</th>
               <th>Dari Cabang</th>
-              <th>Jenis RAB</th>
               <th>Tanggal Dibuat</th>
-              <th>Catatan</th>
+              <th>Tanggal Berangkat</th>
+              <th>Total RAB Diajukan</th>
               <th>Status</th>
               <th>Keterangan Status</th>
             </tr>
@@ -130,7 +130,6 @@ $user = $this->session->userdata();
 
 <script>
   let dataTable;
-
 
   $(function() {
     let payload = {
@@ -168,14 +167,19 @@ $user = $this->session->userdata();
           "data": "destination"
         },
         {
-          "data": "from_cb"
+          "data": "nama_cabang"
         },
         {
-          "data": "date"
+          "data": "request_date"
         },
         {
-          "data": "remark",
-          // "width": "550px"
+          "data": "departure_date"
+        },
+        {
+          "data": "total_amount",
+          "render": function(data, type, row) {
+            return formatRupiah(data);
+          }
         },
         {
           "data": "status"
@@ -206,9 +210,21 @@ $user = $this->session->userdata();
     });
   };
 
+  function formatRupiah(angka) 
+  {
+  // Pastikan angka adalah integer
+  angka = Math.floor(angka);
+  // Konversi angka ke string dan balik urutan
+  const format = angka.toString().split('').reverse().join('');
+  // Pecah string ke dalam grup 3 digit
+  const convert = format.match(/\d{1,3}/g);
+  // Gabung kembali grup 3 digit dengan titik sebagai pemisah, balik urutan lagi, dan tambahkan "Rp " di depan
+  return 'Rp ' + convert.join('.').split('').reverse().join('');
+  }
+
   function filter() {
     let status = "<?= $status ?>"
-    let roleId = '<?=$user["role_id"]?>'
+    let roleId = '<?= $user["role_id"] ?>'
 
     // yang boleh ada filter by status hanya di halaman index (default staus ALL)
     if (status == "ALL") {

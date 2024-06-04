@@ -77,6 +77,7 @@
                 <div class="col-md-12 mr-auto">
                   <div class="table-responsive">
                     <!-- data barang -->
+                    <!-- ini untuk nyimpan data barang dalam bentuk JSON nanti datanya di oleh sama javascript buat di tampilkan secara dinamis -->
                     <input type="hidden" data-barang='<?= json_encode($peminjaman['barangpeminjaman']) ?>' id="barangpeminjaman">
                     <table class="table table-bordered" id="dynamic">
                       <thead>
@@ -223,7 +224,6 @@
 
   // change text of number in list table
   function changeNumber() {
-    console.log("change num")
     uniqIds.forEach((uid, i) => {
       $(`#no-${uid}`).text(`${i + 1}`)
     })

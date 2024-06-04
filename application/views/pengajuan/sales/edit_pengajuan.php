@@ -1,4 +1,3 @@
-<!-- Main content -->
 <section class="content">
   <div class="container-fluid">
     <div class="row">
@@ -6,154 +5,175 @@
         <div class="card">
           <div class="card-header bg-light">
             <div class="text-center">
-              <h3 class="">FORM EDIT PEMINJAMAN DATA PUSAT</h3>
-              <p class="font-weight-bold">Kode Pengajuan : <?= $peminjaman['kode_pengajuan'] ?></p>
+              <h3 class="">FORM EDIT PENGAJUAN RAB BIAYA PERJALANAN</h3>
             </div>
           </div>
           <!-- /.card-header -->
           <div class="card-body p-5">
-            <form id="form" class="form-horizontal">
-              <input type="hidden" name="id" id="id" value="<?= $peminjaman['id_peminjaman'] ?>">
-              <input type="hidden" id="userid" value="<?= $peminjaman["id_user"] ?>">
-              <input type="hidden" value="<?= $this->session->userdata('role_id') ?>" name="roleId" id="roleId" />
-              <div class="form-group row ">
-                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <select class="form-control" id="direction" name="direction" required>
-                      <option value="">Pilih Cabang ...</option>
-                      <?php foreach ($cabangs as $cabang) { ?>
-                        <option value="<?= $cabang['id_cabang'] ?>" <?php if ($cabang['id_cabang'] == $peminjaman['id_cabang']) echo ('selected') ?>> <?= $cabang['nama_cabang'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <input type="text" class="form-control" placeholder="Tanggal" readonly value="<?= date_format(date_create($peminjaman['date']), 'd/m/Y') ?>">
-                    <input type="hidden" class="form-control" name="date" id="date" placeholder="Tanggal" readonly value="<?= $peminjaman['date'] ?>">
-                  </div>
-                </div>
-              </div>
-              <div class="form-group row ">
-                <?php
-                $roleId = $this->session->userdata('role_id');
-                if ($roleId == "1") { ?>
-                  <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                    <div class="kosong">
-                      <select class="form-control" id="from" name="from" require>
-                        <option value="">Dari Cabang ...</option>
-                        <?php foreach ($cabangs as $cabang) { ?>
-                          <option value="<?= $cabang['id_area'] ?>" <?php if ($cabang['id_area'] == $peminjaman['from']) echo ('selected') ?>><?= $cabang['nama_cabang'] ?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                    <div class="kosong">
-                      <select class="form-control" id="submitter" name="submitter" require>
-                        <option value="<?= $peminjaman["id_user"] ?>"><?= $peminjaman["name"] ?></option>
+            <form id="form" class="form-horizontal" method="post" action="<?= base_url('pengajuan/update') ?>">
+              <!-- Hidden inputs -->
+              <input type="hidden" value="<?= $pengajuan['id'] ?>" name="id">
+              <input type="hidden" value="<?= $this->session->userdata('id') ?>" name="userid" id="userid" />
+              <input type="hidden" value="<?= $this->session->userdata('area_id') ?>" name="area_id" id="areaid" />
+              <input type="hidden" name="kode_pengajuan" id="kode_pengajuan" value="<?= $pengajuan['kode_pengajuan'] ?>">
 
-                      </select>
-                    </div>
+              <!-- Tanggal Pengajuan -->
+              <div class="form-group row">
+                <div class="col col-sm-4 col-md-2 col-lg-2">
+                  <div class="form-group">
+                    <label for="request_date">Tanggal Pengajuan RAB</label>
+                    <input type="date" class="form-control" name="request_date" id="request_date" placeholder="Tanggal Pengajuan" value="<?= $pengajuan['request_date'] ?>" required readonly>
                   </div>
-                <!-- <?php  } else {
-                  $area = $this->session->userdata('area');
-                  $areaId = $area[0]["area_id"];
-                ?>
-                  <input type="hidden" class="form-control" name="from" value="<?= $areaId ?>" id="from" placeholder="Dari" require>
-                <?php } ?> -->
-                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <input type="text" class="form-control" name="number" id="number" placeholder="Nomor" readonly value="<?= $peminjaman['number'] ?>">
+                </div>
+                <!-- Tanggal Berangkat -->
+                <div class="col col-sm-4 col-md-2 col-lg-2">
+                  <div class="form-group">
+                    <label for="departure_date">Tanggal Berangkat</label>
+                    <input type="date" class="form-control" name="departure_date" id="departure_date" placeholder="Tanggal Berangkat" value="<?= $pengajuan['departure_date'] ?>" required>
+                  </div>
+                </div>
+                <!-- Tujuan Perjalanan -->
+                <div class="col col-sm-4 col-md-4 col-lg-4">
+                  <div class="form-group">
+                    <label for="destination">Tujuan Perjalanan</label>
+                    <input type="text" class="form-control" name="destination" id="destination" placeholder="Contoh : Jakarta" value="<?= $pengajuan['destination'] ?>" required>
+                  </div>
+                </div>
+                <!-- Jenis Agenda -->
+                <div class="col col-sm-4 col-md-4 col-lg-4">
+                  <div class="form-group">
+                    <label for="title">Jenis Agenda</label>
+                    <input type="text" class="form-control" name="title" id="title" placeholder="Contoh : Visit Dinas Mingguan" value="<?= $pengajuan['title'] ?>" required>
+                  </div>
+                </div>
+                <!-- Total Amount-->
+                <div class="col col-sm-4 col-md-4 col-lg-4">
+                  <div class="form-group">
+                    <label for="title">Total Semua</label>
+                    <input type="text" class="form-control" name="total_amount" id="total_amount" placeholder="Total Pengajuan" value="<?= $pengajuan['total_amount'] ?>">
                   </div>
                 </div>
               </div>
+
+              <!-- SECTION TRIP DETAIL -->
               <div class="form-group row">
-                <div class="col col-10 ml-auto">
-                  <p>Dengan ini mengajukan permohonan pemakaian stock barang dari CV. Solusi Arya Prima Pusat berupa :</p>
+                <div class="col col-20 ml-auto">
+                  <p>Pengajuan RAB Biaya Perjalanan kepada Solusi Arya Prima Pusat Dengan Rincian :</p>
                 </div>
               </div>
               <div class="form-group row">
                 <div class="col-md-12 mr-auto">
                   <div class="table-responsive">
-                    <!-- data barang -->
-                    <input type="hidden" data-barang='<?= json_encode($peminjaman['barangpeminjaman']) ?>' id="barangpeminjaman">
-                    <table class="table table-bordered" id="dynamic">
+                    <input type="hidden" data-trip-details='<?= json_encode($pengajuan['official_trip_detail']) ?>' id="tripdetails">
+                    <table class="table table-bordered" id="official-trip-detail-table">
+                      <!-- Table headers -->
                       <thead>
                         <tr>
                           <td>Nomor</td>
-                          <td>SKU</td>
-                          <td>Nama Barang</td>
-                          <td>Jumlah</td>
-                          <td>Harga Satuan</td>
+                          <td>Kegiatan / Aktivitas</td>
+                          <td>Deskripsi</td>
+                          <td>Makan</td>
+                          <td>QTY</td>
+                          <td>Jumlah Hari</td>
+                          <td>Unit Price (IDR)</td>
                           <td>Total Harga</td>
-                          <td>Stok/PO</td>
-                          <td>Maks Delivery</td>
                           <td>Action</td>
                         </tr>
                       </thead>
-                      <tbody id="dynamic">
+                      <tbody id="trip-detail-body">
+                        <!-- Rows will be dynamically added/removed via JavaScript -->
                       </tbody>
                       <tfoot>
                         <tr>
                           <td colspan="5" class="text-center font-weight-bold">Total</td>
-
-                          <td class="font-weight-bold">Rp. <span id="total"></span> </td>
-                          <td colspan="3"></td>
+                          <td colspan="4" class="font-weight-bold text-center"><span id="total"></span> </td>
                         </tr>
                       </tfoot>
                     </table>
                   </div>
                 </div>
               </div>
+
               <div class="form-group row">
-                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <label for='closingdate'>Tanggal closing</label>
-                    <input type="date" class="form-control" name="closingdate" id="closingdate" placeholder="Tanggal maksimal closing" required value="<?= $peminjaman['closingdate'] ?>">
-                  </div>
+                <div class="col-md-12 text-right">
+                  <button type="button" id="add-trip-detail" class="btn btn-success"><i class="fas fa-plus"></i> Add Detail</button>
                 </div>
-                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <label for='note'>Note</label>
-                    <input type="text" class="form-control" name="note" id="note" placeholder="catatan" required value="<?= $peminjaman['note'] ?>">
+              </div>
+
+              <!-- SECTION TRIP DESTINATION -->
+              <div class="form-group row">
+                <div class="col col-20 ml-auto">
+                  <p>Rincian Agenda Visit Dinas :</p>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-md-10 mr-auto">
+                  <div class="table-responsive">
+                    <input type="hidden" data-trip-destinations='<?= json_encode($pengajuan['official_trip_destination']) ?>' id="tripdestinations">
+                    <table class="table table-bordered" id="trip-destination-table">
+                      <!-- Table headers -->
+                      <thead>
+                        <tr>
+                          <td>Nomor</td>
+                          <td>Nama Dinas</td>
+                          <td>Kota / Kabupaten</td>
+                          <td>Nomor Tiket</td>
+                          <td>Keterangan</td>
+                          <td>Action</td>
+                        </tr>
+                      </thead>
+                      <tbody id="trip-destination-body">
+                        <!-- Rows will be dynamically added/removed via JavaScript -->
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
               <div class="form-group row">
-                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <label for='dinas'>Dinas</label>
-                    <input type="text" class="form-control" name="dinas" id="dinas" placeholder="nama dinas" required value="<?= $peminjaman['dinas'] ?>">
-                  </div>
-                </div>
-                <div class="col col-sm-6 col-md-4 col-lg-4 col-lg-4">
-                  <div class="kosong">
-                    <label for='lokasi'>Lokasi</label>
-                    <input type="text" class="form-control" name="lokasi" id="lokasi" placeholder="lokasi dinas" required value="<?= $peminjaman['lokasi'] ?>">
-                  </div>
+                <div class="col-md-12 text-right">
+                  <button type="button" id="add-trip-destination" class="btn btn-success"><i class="fas fa-plus"></i> Add Destination</button>
                 </div>
               </div>
+
               <div class="form-group row mt-5">
-                <input type="hidden" name="" id="url_peminjaman" value="<?= base_url('peminjaman') ?>">
-                <a href="<?= base_url('peminjaman') ?>" class="btn btn-danger ml-auto mr-3" data-dismiss="modal">Cancel</a>
+                <input type="hidden" name="" id="url_pengajuan" value="<?= base_url('pengajuan') ?>">
+                <a href="<?= base_url('pengajuan') ?>" class="btn btn-danger ml-auto mr-3" data-dismiss="modal">Cancel</a>
                 <button type="submit" id="btnSave" class="btn btn-primary">Save</button>
               </div>
-              <!-- /.card-body -->
             </form>
           </div>
-          <!-- /.card -->
+          <!-- /.card-body -->
         </div>
-        <!-- /.col -->
+        <!-- /.card -->
       </div>
-      <!-- /.row -->
+      <!-- /.col -->
     </div>
-    <!-- /.container-fluid -->
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
 </section>
-<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js"></script>
 <script>
-  let uniqIds = [];
+  let uniqueTripDetailIds = [];
+  let uniqueDestinationIds = [];
+  let activityData = {};
 
+
+  $(function() {
+    // Set default values or perform any necessary operations on document ready
+    $("#request_date").val(moment().startOf("days").format("YYYY-MM-DD"));
+    $("#departure_date").val(moment().endOf("days").format("YYYY-MM-DD"));
+  });
+
+  // Function to handle whitespace deletion
+  function deleteWhiteSpace(uniqId) {
+    var textarea = $(`#${uniqId}`);
+    var text = textarea.val();
+    text = text.replace(/\s+/g, ''); // Remove all whitespace
+    textarea.val(text);
+  }
+
+  // Function to create a random string
   function createRandomString(length) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -163,8 +183,9 @@
     return result;
   }
 
+  // Function to format currency
   function formatRupiah(angka = 0, prefix) {
-    var number_string = angka.replace(/[^,\d]/g, '').toString(),
+    var number_string = angka.toString().replace(/[^,\d]/g, ''),
       split = number_string.split(','),
       sisa = split[0].length % 3,
       rupiah = split[0].substr(0, sisa),
@@ -179,205 +200,339 @@
     return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
   }
 
-  let areaId = "";
-  $('#from').on('change', function() {
-    areaId = this.value;
-
-    // clear select box option
-    $('#submitter')
-      .empty()
-      .append('<option value="">Peminjam...</option>')
-
-    $.ajax({
-      url: `../userdropdown/${areaId}`,
-      method: 'GET',
-      cache: false,
-      success: function(data) {
-        $.each(JSON.parse(data), function(i, item) {
-          $('#submitter').append($('<option>', {
-            value: item.id,
-            text: item.name
-          }));
-        });
-      }
-    })
-
-  });
-  // set total step two
+  // Function to handle total amount calculation
   function change() {
     let total = 0;
-
-    uniqIds.forEach((uid, i) => {
-      let data = parseInt(($(`#total-${uid}`).val()).replace(/[^0-9]/g, ""))
+    uniqueTripDetailIds.forEach((uid, i) => {
+      let data = parseInt(($(`#total-amount-${uid}`).val()).replace(/[^0-9]/g, ""));
       if (total !== 0) {
-        total = total.replace(/[.]/g, "")
+        total = total.toString().replace(/[.]/g, "")
       }
       total = parseInt(total) + parseInt(data ? data : 0);
       total = formatRupiah(total.toString());
 
-      $(`#no-${uid}`).text(`${i + 1}`)
-    })
+      $(`#no-${uid}`).text(`${i + 1}`);
+    });
 
-    $('#total').text(total)
+    $('#total').text(total);
   }
 
-  // change text of number in list table
-  function changeNumber() {
-    console.log("change num")
-    uniqIds.forEach((uid, i) => {
-      $(`#no-${uid}`).text(`${i + 1}`)
-    })
-  }
-
+  // Function to handle calculation based on quantity input
   function getTotalFromQty(e) {
-    const uid = e.id.replace(/qty-/, "")
+    const uid = e.id.replace(/qty-/, "");
     const qty = e.value;
-    const price = $(`#price-${uid}`).val().replace(/[^0-9]/g, "");
-    const total = parseInt((qty ? qty : 0) * parseInt(price ? price : 0))
-    $(`#total-${uid}`).val(formatRupiah(total.toString(), "Rp. "))
-    change()
+    const duration = $(`#duration-${uid}`).val();
+    const amount = $(`#amount-${uid}`).val().replace(/[^0-9]/g, "");
+
+    // Calculate total amount
+    let totalAmount = parseInt((qty ? qty : 0) * parseInt(duration ? duration : 1) * parseInt(amount ? amount : 0));
+    totalAmount = formatRupiah(totalAmount, "Rp. ");
+
+    $(`#total-amount-${uid}`).val(totalAmount);
+    change();
   }
 
-  function getTotalFromPrice(e) {
-    const uid = e.id.replace(/price-/, "")
-    const price = e.value.replace(/[^0-9]/g, "")
-    $(`#${e.id}`).val(formatRupiah(price, "Rp. "))
+  // Function to handle calculation based on duration input
+  function getTotalFromDuration(e) {
+    const uid = e.id.replace(/duration-/, "");
+    const duration = e.value;
     const qty = $(`#qty-${uid}`).val();
-    const total = parseInt((qty ? qty : 0) * parseInt(price ? price : 0))
-    $(`#total-${uid}`).val(formatRupiah(total.toString(), "Rp. "))
-    change()
+    const amount = $(`#amount-${uid}`).val().replace(/[^0-9]/g, "");
+
+    // Calculate total amount
+    let totalAmount = parseInt((qty ? qty : 0) * parseInt(duration ? duration : 1) * parseInt(amount ? amount : 0));
+    totalAmount = formatRupiah(totalAmount, "Rp. ");
+
+    $(`#total-amount-${uid}`).val(totalAmount);
+    change();
+  }
+
+  // Function to handle calculation based on amount input
+  function getTotalFromAmount(e) {
+    const uid = e.id.replace(/amount-/, "");
+
+    const amount = e.value.replace(/[^0-9]/g, "");
+    $(`#${e.id}`).val(formatRupiah(amount, "Rp. ")); // Update new amount
+
+    const qty = $(`#qty-${uid}`).val();
+    const duration = $(`#duration-${uid}`).val();
+
+    // Calculate total amount
+    let totalAmount = parseInt((qty ? qty : 0) * parseInt(duration ? duration : 1) * parseInt(amount ? amount : 0));
+    totalAmount = formatRupiah(totalAmount, "Rp. ");
+
+    $(`#total-amount-${uid}`).val(totalAmount);
+    change();
   }
 
   $(document).ready(function() {
+    // Event listeners and other operations on document ready
+    const tripDetails = $("#tripdetails");
+    const dataTripDetails = tripDetails.data("trip-details");
+    console.log("trip detail :", dataTripDetails)
 
-    const barangPeminjaman = $('#barangpeminjaman');
-    const barangs = barangPeminjaman.data('barang');
-
-    // show barang
-    barangs.forEach((item, idx) => {
+    dataTripDetails.forEach((item, idx) => {
       let unique = createRandomString(10);
-      uniqIds = [...uniqIds, unique] // save every uniq id into array to get value input in the looping calculation
+      uniqueTripDetailIds = [...uniqueTripDetailIds, unique];
 
-      $('#dynamic').append(`
-        <tr id="row-${unique}" class="tb_row">
-          <td><label id="no-${unique}">${idx + 1}</label></td> 
-          <td><input type="text" id="sku-${unique}" placeholder="SKU" readonly class="form-control" value="${item.sku}" required /></td> 
-          <td><input type="text" id="name-${unique}" placeholder="Nama Barang" class="form-control" value="${item.nama}" required />
-          </td> <td><input type="number" placeholder="QTY" id="qty-${unique}" onkeyup="getTotalFromQty(this)" class="form-control" value="${item.qty}" required /></td> 
-          <td><input type="text" placeholder="Harga Satuan" id="price-${unique}" onkeyup="getTotalFromPrice(this)" class="form-control" value="${formatRupiah(item.harga, "Rp. ")}")}" required /></td> 
-          <td><input type="text" placeholder="Total" id="total-${unique}" onchange="change()" readonly class="form-control" value="${formatRupiah(item.jumlah, "Rp. ")}" required /></td> 
-          <td><input type="text" id="stok_po-${unique}" placeholder="Stok/PO" readonly class="form-control" value="${item.stok_po}" required /></td> 
-          <td><input type="date" placeholder="Maks Delivery" id="maks-${unique}" class="form-control date" value="${item.maks_delivery}" required /></td> 
-          ${(idx == 0 ? `<td><button type="button" id="tambah" class="btn btn- btn-success">Add <i class="fas fa-fw fa-plus"></i></button></td>` : `<td> <button type="button" id="${unique}" class="btn btn-danger btn_remove">Hapus</button></td>`)}
+      $('#official-trip-detail-table').append(`
+        <tr id="row-trip-detail-${unique}" class="tb_row"> 
+            <td><label id="no-${unique}">${idx + 1}</label></td>  
+            <td>
+              <select class="form-control" id="activity-${unique}" onchange="setFoodOption(this, '${unique}')">
+              </select>
+            </td> 
+            <td>
+                <textarea rows="3" cols="20" id="description-${unique}" class="form-control" placeholder="Deskripsi" required>${item.remark}</textarea>
+            </td> 
+            <td>
+                <select class="form-control" id="is-food-${unique}" readonly disabled>
+                    <option value="NO" ${item.is_food == 'NO' ? 'selected' : ''}>Tidak</option>
+                    <option value="YES" ${item.is_food == 'YES' ? "selected" : ''}>Ya</option>
+                </select>
+            </td> 
+            <td><input type="number" placeholder="QTY" id="qty-${unique}" min="1" value="1" onkeyup="getTotalFromQty(this)" class="form-control" required value="${item.qty}"/></td> 
+            <td><input type="number" placeholder="Jumlah Hari" id="duration-${unique}" min="1" value="1" onkeyup="getTotalFromDuration(this)" class="form-control" required value="${item.duration}" /></td> 
+            <td><input type="text" placeholder="Unit Price (IDR)" id="amount-${unique}"  onkeyup="getTotalFromAmount(this)" class="form-control" required value="${formatRupiah(item.amount, "Rp. ")}")}" /></td> 
+            <td><input type="text" placeholder="Total Price (IDR)" id="total-amount-${unique}" disabled readonly class="form-control" required value="${formatRupiah(item.total_amount, "Rp. ")}")}"/></td>
+            <td> <button type="button" id="${unique}" class="btn btn-danger remove-trip-detail">Hapus</button></td>
         </tr>`);
+
+      setActivity(`activity-${unique}`, `${item.official_trip_activity_id}`);
+      
     })
 
-    // add barang
-    $('#tambah').click(function() {
-      let no = uniqIds.length + 1
-
+    // Event listener to add trip detail row
+    $('#add-trip-detail').click(function() {
+      let no = uniqueTripDetailIds.length + 1;
       let unique = createRandomString(10);
-      uniqIds = [...uniqIds, unique] // save every uniq id into array to get value input in the looping calculation
+      uniqueTripDetailIds.push(unique);
 
-      $('#dynamic').append(`
-        <tr id="row-${unique}" class="tb_row"> 
-          <td><label id="no-${unique}">${no}</label></td>  
-          <td><input type="text" id="sku-${unique}" placeholder="SKU" readonly class="form-control" required /></td>          
-          <td><input type="text" id="name-${unique}" placeholder="Nama Barang" class="form-control" required /></td> 
-          <td><input type="number" placeholder="QTY" id="qty-${unique}" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 
-          <td><input type="text" placeholder="Harga Satuan" id="price-${unique}" onkeyup="getTotalFromPrice(this)" class="form-control" required /></td> 
-          <td><input type="text" placeholder="Total" id="total-${unique}" onchange="change()" readonly class="form-control" required /></td> 
-          <td><input type="text" id="stok_po-${unique}" placeholder="Stok/PO" readonly class="form-control" required /></td> 
-          <td><input type="date" placeholder="Maks Delivery" id="maks-${unique}" class="form-control date" required /></td> 
-          <td> <button type="button" id="${unique}" class="btn btn-danger btn_remove">Hapus</button></td>
+      $('#official-trip-detail-table').append(`
+        <tr id="row-trip-detail-${unique}" class="tb_row"> 
+            <td><label id="no-${unique}">${no}</label></td>  
+            <td>
+              <select class="form-control" id="activity-${unique}" onchange="setFoodOption(this, '${unique}')">
+              </select>
+            </td> 
+            <td>
+                <textarea rows="3" cols="20" id="description-${unique}" class="form-control" placeholder="Deskripsi" required></textarea>
+            </td> 
+            <td>
+                <select class="form-control" id="is-food-${unique}" readonly disabled>
+                    <option value="NO">Tidak</option>
+                    <option value="YES">Ya</option>
+                </select>
+            </td> 
+            <td><input type="number" placeholder="QTY" id="qty-${unique}" min="1" value="1" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 
+            <td><input type="number" placeholder="Jumlah Hari" id="duration-${unique}" min="1" value="1" onkeyup="getTotalFromDuration(this)" class="form-control" required /></td> 
+            <td><input type="text" placeholder="Unit Price (IDR)" id="amount-${unique}"  onkeyup="getTotalFromAmount(this)" class="form-control" required /></td> 
+            <td><input type="text" placeholder="Total Price (IDR)" id="total-amount-${unique}" disabled readonly class="form-control" required /></td>
+            <td> <button type="button" id="${unique}" class="btn btn-danger remove-trip-detail">Hapus</button></td>
         </tr>`);
 
-      // update NO of list
-      changeNumber()
+      // Delete whitespace on textarea
+      deleteWhiteSpace(`description-${unique}`);
+
+      // Update the number of list trip detail
+      changeNumberTripDetail();
+
+      // Get master data for activity
+      setActivity(`activity-${unique}`);
+
+
+
+      // TRIP DESTINATION
+      const tripDestinations = $("#tripdestinations");
+      const dataTripDestinations = tripDestinations.data("trip-destinations");
+      console.log("trip destination :", dataTripDestinations)
     });
 
-    // set total step one
-    let total = 0;
-    uniqIds.forEach((uid) => {
-      let data = parseInt(($(`#total-${uid}`).val()).replace(/[^0-9]/g, ""))
-      total = parseInt(total) + parseInt(data ? data : 0);
-      total = formatRupiah(total.toString());
-    })
 
-
-    $('#total').text(total)
-
-
-    // remote barang
-    $(document).on('click', '.btn_remove', function() {
+    // Event listener to remove trip detail row
+    $(document).on('click', '.remove-trip-detail', function() {
       var button_id = $(this).attr("id");
-      $('#row-' + button_id + '').remove();
-      uniqIds = uniqIds.filter((uid) => uid != button_id)
+      $('#row-trip-detail-' + button_id + '').remove();
+      uniqueTripDetailIds = uniqueTripDetailIds.filter((uid) => uid != button_id);
 
-      change() // update total price
-      changeNumber() // update number of list
+      change(); // Update total price
+      changeNumberTripDetail(); // Update number of list trip detail
     });
 
+    // Event listener to add trip destination row
+    $('#add-trip-destination').click(function() {
+      let no = uniqueDestinationIds.length + 1;
 
-    // submit update data
-    $('#form').submit(function(e) {
-      e.preventDefault()
-      let barang = []
+      let unique = createRandomString(10);
+      uniqueDestinationIds.push(unique);
 
-      uniqIds.forEach((uid) => {
-        let sku = $(`#sku-${uid}`).val()
-        let name = $(`#name-${uid}`).val()
-        let qty = $(`#qty-${uid}`).val()
-        let price = parseInt(($(`#price-${uid}`).val()).replace(/[^0-9]/g, ""))
-        let total = parseInt(($(`#total-${uid}`).val()).replace(/[^0-9]/g, ""))
-        let stok_po = $(`#stok_po-${uid}`).val()
-        let maks = $(`#maks-${uid}`).val()
-        barang = [...barang, {
-          sku,
-          name,
-          qty,
-          price,
-          total,
-          stok_po,
-          maks
-        }]
-      })
+      $('#trip-destination-table').append(`
+        <tr id="row-trip-destination-${unique}" class="tb_row"> 
+          <td><label id="no-${unique}">${no}</label></td>  
+          <td><input type="text" placeholder="Nama Dinas Tujuan" id="name-${unique}" class="form-control" required /></td>
+          <td><input type="text" placeholder="Kota / Kabupaten" id="destination-${unique}" class="form-control" required /></td>
+          <td><input type="text" placeholder="Nomor Tiket" id="ticket-number-${unique}" class="form-control" /></td>
+          <td>
+            <textarea rows="3" cols="20" id="remark-${unique}" class="form-control" placeholder="Keterangan" required></textarea>
+          </td> 
+          <td> <button type="button" id="${unique}" class="btn btn-danger remove-trip-destination">Hapus</button></td>
+        </tr>`);
 
-      const direction = $('#direction').val();
-      const userId = $('#roleId').val() == "1" ? $('#submitter').val() : null; // kalau admin dia ambil id dari input submitter
-      const date = $('#date').val()
-      const from = $('#roleId').val() == 1 ? $('#from').val() : null;
-      const number = $('#number').val()
-      const closingDate = $('#closingdate').val()
-      const note = $('#note').val()
-      const dinas = $('#dinas').val()
-      const lokasi = $('#lokasi').val()
-      const id = $('#id').val()
+      // Delete whitespace on textarea
+      deleteWhiteSpace(`remark-${unique}`);
 
-      const payload = {
-        direction,
-        userId,
-        date,
-        from,
-        number,
-        closingDate,
-        note,
-        dinas,
-        lokasi,
-        barang,
-        id
+      // Update number of list destination
+      changeNumberTripDestination();
+    });
+
+    // Event listener to remove trip destination row
+    $(document).on('click', '.remove-trip-destination', function() {
+      var button_id = $(this).attr("id");
+      $('#row-trip-destination-' + button_id + '').remove();
+      uniqueDestinationIds = uniqueDestinationIds.filter((uid) => uid != button_id);
+
+      changeNumberTripDestination(); // Update number of list destination
+    });
+  });
+
+  // Event listener for form submission
+  $('#form').submit(function(e) {
+    e.preventDefault();
+
+    // Collect official trip detail data
+    let official_trip_detail = [];
+    uniqueTripDetailIds.forEach((uid) => {
+      let official_trip_activity_id = $(`#activity-${uid}`).val();
+      let remark = $(`#description-${uid}`).val();
+      let is_food = $(`#is-food-${uid}`).val();
+      let qty = $(`#qty-${uid}`).val();
+      let duration = $(`#duration-${uid}`).val();
+      let amount = parseInt(($(`#amount-${uid}`).val()).replace(/[^0-9]/g, ""));
+      let total_amount = parseInt(($(`#total-amount-${uid}`).val()).replace(/[^0-9]/g, ""));
+
+      official_trip_detail.push({
+        official_trip_activity_id,
+        remark,
+        is_food,
+        qty,
+        duration,
+        amount,
+        total_amount,
+      });
+    });
+
+    // Collect official trip destination data
+    let official_trip_destination = [];
+    uniqueDestinationIds.forEach((uid) => {
+      let name = $(`#name-${uid}`).val();
+      let destination = $(`#destination-${uid}`).val();
+      let remark = $(`#remark-${uid}`).val();
+      let ticket_number = $(`#ticket-number-${uid}`).val();
+
+      official_trip_destination.push({
+        name,
+        destination,
+        remark,
+        ticket_number,
+      });
+    });
+
+    // Collect other form data
+    let request_date = $("#request_date").val();
+    let departure_date = $("#departure_date").val();
+    let title = $("#title").val();
+    let destination = $("#destination").val();
+    let total_amount = parseInt(($("#total").text()).replace(/[^0-9]/g, ""));
+
+    // Create payload for AJAX request
+    const payload = {
+      request_date,
+      departure_date,
+      title,
+      destination,
+      total_amount,
+      official_trip_detail,
+      official_trip_destination,
+    };
+
+    // Perform AJAX request
+    $.ajax({
+      method: 'POST',
+      cache: false,
+      data: payload,
+      url: 'update', // Update URL to correct endpoint
+      success: function(data) {
+        const redirectUrl = $('#url_pengajuan').val();
+        window.location = `${redirectUrl}`;
+      },
+      error: function(xhr, status, error) {
+        console.error('Error:', error);
+        alert('An error occurred while processing your request.');
+      }
+    });
+    console.log("Payload to send:", JSON.stringify(payload, null, 2));
+  });
+
+  // Function to set food option when activity is selected as makan
+  function setFoodOption(elm, uniqueId) {
+    let option = $(elm).val();
+    $(`#is-food-${uniqueId}`).val(option == 2 ? "YES" : "NO");
+  }
+
+  // Function to retrieve activity data
+  async function setActivity(uniqueId, activitySelected = null) {
+    try {
+      // jika data activity masih kosong, ambil dulu data dari api
+      if (!activityData.status) {
+        activityData = await getActivity();
       }
 
+      // set data activity
+      if (activityData.status && activityData.status == 200) {
+        let data = activityData.data;
+        let selectElm = $(`#${uniqueId}`);
+        data.forEach((item) => {
+          let option = $('<option></option>').attr("value", item.id).text(item.name).attr("selected", activitySelected == item.id);
+          selectElm.append(option);
+        });
+      }
+    } catch (err) {
+      console.log("something error when get data activity", err.message)
+    }
+  }
+
+
+  // Function to fetch activity data from the backend
+  function getActivity() {
+    return new Promise((resolve, reject) => {
       $.ajax({
-          method: 'POST',
-          cache: false,
-          data: payload,
-          url: '../update',
-        })
-        .done(function(data) {
-          const redirectUrl = $('#url_peminjaman').val()
-          window.location = `${redirectUrl}`;
-        })
+        url: "../master_activity",
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        success: function(res) {
+          resolve(JSON.parse(res))
+        },
+        error: function(err) {
+          console.log("error fetch master activity :", err);
+          let errResp = {
+            status: 500,
+            message: err
+          };
+          reject(errResp);
+        }
+      })
     })
-  });
+  }
+
+  // Function to update the number of trip detail list
+  function changeNumberTripDetail() {
+    $("#no-trip-detail").text(uniqueTripDetailIds.length);
+  }
+
+  // Function to update the number of destination list
+  function changeNumberTripDestination() {
+    $("#no-trip-destination").text(uniqueDestinationIds.length);
+  }
 </script>

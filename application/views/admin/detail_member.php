@@ -27,7 +27,9 @@
                                 <?php elseif($member['role_id'] == 7) : ?> <?= 'ManagerOps' ?>
                                 <?php elseif($member['role_id'] == 8) : ?> <?= 'PMManager' ?>
                                 <?php elseif($member['role_id'] == 9) : ?> <?= 'CS' ?>
-                                <?php else : ?> <?= 'Purchasing' ?> <?php endif; ?> <br>
+                                <?php elseif($member['role_id'] == 10) : ?> <?= 'Purchasing' ?>
+                                <?php elseif($member['role_id'] == 11) : ?> <?= 'HRD' ?>
+                                <?php else : ?> <?= 'Accounting' ?> <?php endif; ?> <br>
                                 <?= $member['email']; ?> <br>
                                 Status? 
                                 <?php if($member['is_active'] == 1) : ?> <?= 'Active' ?>

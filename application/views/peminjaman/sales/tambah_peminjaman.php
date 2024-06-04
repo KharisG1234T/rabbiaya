@@ -90,7 +90,10 @@
                       <tbody id="dynamic">
                         <tr class="tb_row">
                           <td><label>1</label></td>
-                          <td><input type="text" id="name-ikiuniqueyo" placeholder="Nama Barang" class="form-control" required /></td>
+                          <td>
+                            <textarea rows="3" cols="20" id="name-ikiuniqueyo" placeholder="Nama Barang" class="form-control" required></textarea>    
+                            </td>
+                          </td>
                           <td><input type="number" id="qty-ikiuniqueyo" placeholder="QTY" onkeyup="getTotalFromQty(this)" class="form-control" required /></td>
                           <td><input type="text" id="price-ikiuniqueyo" placeholder="Harga Satuan" onkeyup="getTotalFromPrice(this)" class="form-control" required /></td>
                           <td><input type="text" id="total-ikiuniqueyo" placeholder="Total" onchange="change()" readonly class="form-control" required /></td>
@@ -165,6 +168,14 @@
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
+  }
+
+  // DELETE WHITE SPACE ON THE TEXTAREA
+  function deleteWhiteSpace(uniqId) {
+    var textarea = document.getElementById(uniqId);
+    var text = textarea.value;
+    text = text.replace(/\s+/g, ''); // Menghapus semua whitespace
+    textarea.value = text;
   }
 
   function formatRupiah(angka = 0, prefix) {
@@ -262,7 +273,7 @@
       $('#dynamic').append(`
         <tr id="row-${unique}" class="tb_row"> 
           <td><label id="no-${unique}">${no}</label></td>  
-          <td><input type="text" id="name-${unique}" placeholder="Nama Barang" class="form-control" required /></td> 
+          <td><textarea rows="3" cols="20" id="name-${unique}" placeholder="Nama Barang" class="form-control" required></textarea></td> 
           <td><input type="number" placeholder="QTY" id="qty-${unique}" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 
           <td><input type="text" placeholder="Harga Satuan" id="price-${unique}"  onkeyup="getTotalFromPrice(this)" class="form-control" required /></td> 
           <td><input type="text" placeholder="Total" id="total-${unique}" onchange="change()" readonly class="form-control" required /></td> 

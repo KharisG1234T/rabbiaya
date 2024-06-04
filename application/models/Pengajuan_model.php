@@ -84,11 +84,12 @@ class Pengajuan_model extends CI_Model
 
 	public function getAll($status, $start, $length, $order_by = 'kode_pengajuan', $order_direction = 'asc', $searchValue = "", $tgl_awal = "", $tgl_akhir = "", $from = "ALL", $direction = "ALL", $isArchieve = false)
 	{
-		$this->db->select("official_trip.*, user.name, cabang.nama_cabang");
+		$this->db->select("official_trip.*, user.name, cabang.nama_cabang, official_trip.total_amount");
 		$this->db->from('official_trip');
 		$this->db->join("user", 'user.id = official_trip.user_id', 'inner');
 		$this->db->join("cabang", "cabang.id_area = official_trip.area_id", "inner");
 
+		// Filter by area if role is not admin
 		if ($this->session->userdata('role_id') != 1 && $this->session->userdata('role_id') != 2) {
 			$areas = $this->session->userdata("area");
 			$areaIds = [0];
@@ -99,26 +100,29 @@ class Pengajuan_model extends CI_Model
 			$this->db->where_in('official_trip.area_id', $areaIds);
 		}
 
+		// Filter by user if role is user
 		if ($this->session->userdata('role_id') == 2) {
 			$this->db->where('user.id', $this->session->userdata('id'));
 		}
 
+		// Filter by status
 		if ($status !== 'ALL') {
 			$this->db->where('official_trip.status', $status);
 		}
 
+		// Filter by area
 		if ($from != "ALL") {
-			// from mengambil dari id area suatu cabang
 			$this->db->where("official_trip.area_id", intval($from));
 		}
 
+		// Filter by archive status
 		if ($isArchieve) {
 			$this->db->where('official_trip.deleted_at !=', NULL);
 		} else {
-			// filter data no softdeleted
 			$this->db->where('official_trip.deleted_at IS NULL');
 		}
 
+		// Filter by search value
 		if ($searchValue && $searchValue != "") {
 			$this->db->group_start();
 			$this->db->like('user.name', $searchValue);
@@ -127,7 +131,7 @@ class Pengajuan_model extends CI_Model
 			$this->db->group_end();
 		}
 
-
+		// Filter by date range
 		if ($tgl_awal != "" && $tgl_akhir != "") {
 			$this->db->group_start();
 			$this->db->where('date >=', $tgl_awal);
@@ -135,58 +139,84 @@ class Pengajuan_model extends CI_Model
 			$this->db->group_end();
 		}
 
-
-		// Tambahkan sorting berdasarkan kode_pengajuan
+		// Add sorting
 		$this->db->order_by($order_by, $order_direction);
 
-		// Tambahkan limit dan offset untuk server-side processing
+		// Add limit and offset for server-side processing
 		if (is_int($start) && is_int($length)) {
 			$this->db->limit($length, $start);
 		}
 
-		// print_r($this->db->get_compiled_select()); 
-		// die;
 		$query = $this->db->get();
 		return $query->result_array();
 	}
 
-	function getDetail($id)
-	{
-		$this->db->select("official_trip.*, area.area, ar.area as from_ar, user.name");
-		$this->db->from('official_trip');
-		$this->db->join("cabang", "cabang.id_area = official_trip.area_id", "inner");
-		$this->db->join("user", "user.id = official_trip.user_id", "inner");
-		$this->db->where('official_trip.id', $id);
-		$query = $this->db->get()->row_array();
+    public function getDetail($id)
+    {
+        // Query to get main trip details
+        $this->db->select("official_trip.*, user.name, cabang.nama_cabang, official_trip.total_amount");
+        $this->db->from('official_trip');
+        $this->db->join("user", 'user.id = official_trip.user_id', 'inner');
+        $this->db->join("cabang", "cabang.id_area = official_trip.area_id", "inner");
 
-		// relation one to many
-		$official_trip_destination = $this->db->from('official_trip_destination')->where('official_trip_id', $id)->get()->result_array();
-		$official_trip_detail = $this->db->from('official_trip_detail')
-			->where('official_trip_id')
-			->where('official_trip_activity_id')
-			->get()
-			->result_array();
-		$official_trip_approval = $this->db->select('created_at, user_id, status')->from('official_trip_approval')->where('official_trip_id', $id)->get()->result_array();
-		$users = [];
+        // Filter by area if role is not admin
+        if ($this->session->userdata('role_id') != 1 && $this->session->userdata('role_id') != 2) {
+            $areas = $this->session->userdata("area");
+            $areaIds = [0];
 
-		foreach ($official_trip_approval as $key => $user) {
-			$data = $this->db->select('ttd, role_id')->from('user')->where('id', $user['id_user'])->get()->row_array();
-			if ($user['status'] == "REJECT") {
-				$data['ttd'] = 'rejected.png';
-			} else if ($data['ttd'] == null) {
-				$data['ttd'] = '';
-			}
-			$data['created_at'] = $user['created_at'];
-			array_push($users, $data);
-			unset($official_trip_approval[$key]);
-		}
+            foreach ($areas as $area) {
+                array_push($areaIds, (int) $area['area_id']);
+            }
+            $this->db->where_in('official_trip.area_id', $areaIds);
+        }
 
-		$official_trip_approval['users'] = $users;
-		$query['official_trip_destination'] = $official_trip_destination;
-		$query['official_trip_detail'] = $official_trip_detail;
-		$query['official_trip_approval'] = $official_trip_approval;
-		return $query;
-	}
+        // Filter by user if role is user
+        if ($this->session->userdata('role_id') == 2) {
+            $this->db->where('user.id', $this->session->userdata('id'));
+        }
+
+        // Filter by ID
+        $this->db->where('official_trip.id', $id);
+
+        $query = $this->db->get()->row_array();
+
+        // Query to get trip details including activity information
+        $tripDetails = $this->db->select('*')->from('official_trip_detail')->where('official_trip_id', $id)->get()->result_array();
+
+        foreach ($tripDetails as &$detail) {
+            $activityId = $detail['official_trip_activity_id'];
+            $activityInfo = $this->db->select('*')->from('official_trip_activity')->where('id', $activityId)->get()->row_array();
+            $detail['activity'] = $activityInfo; // Add activity information to trip detail
+        }
+
+        // Query to get trip destinations
+        $official_trip_destination = $this->db->from('official_trip_destination')->where('official_trip_id', $id)->get()->result_array();
+
+        // Query to get approval statuses
+        $official_trip_approval = $this->db->select('created_at, user_id, status')->from('official_trip_approval')->where('official_trip_id', $id)->get()->result_array();
+        $users = [];
+
+        foreach ($official_trip_approval as $key => $user) {
+            $data = $this->db->select('ttd, role_id')->from('user')->where('id', $user['user_id'])->get()->row_array();
+            if ($user['status'] == "REJECT") {
+                $data['ttd'] = 'rejected.png';
+            } else if ($data['ttd'] == null) {
+                $data['ttd'] = '';
+            }
+            $data['created_at'] = $user['created_at'];
+            array_push($users, $data);
+        }
+
+        $official_trip_approval_data['users'] = $users;
+
+        // Build the result array
+        $query['official_trip_detail'] = $tripDetails;
+        $query['official_trip_destination'] = $official_trip_destination;
+        $query['official_trip_approval'] = $official_trip_approval_data;
+
+        return $query;
+    }
+
 
 	public function getById($id)
 	{
@@ -196,9 +226,25 @@ class Pengajuan_model extends CI_Model
 
 	public function save($data)
 	{
+		// Tentukan nilai user_id dan area_id jika tidak ada dalam data
+		if (!isset($data['user_id'])) {
+			// Set user_id berdasarkan sesi pengguna
+			$data['user_id'] = $this->session->userdata('id');
+		}
+
+		if (!isset($data['area_id'])) {
+			// Set area_id berdasarkan area pertama dari sesi pengguna
+			$area = $this->session->userdata('area');
+			$data['area_id'] = $area[0]["area_id"];
+		}
+
+		// Simpan data pengajuan ke dalam tabel official_trip
 		$this->db->insert('official_trip', $data);
+
+		// Dapatkan ID yang baru saja diinsert
 		$insert_id = $this->db->insert_id();
 
+		// Kembalikan ID yang baru saja diinsert
 		return $insert_id;
 	}
 
