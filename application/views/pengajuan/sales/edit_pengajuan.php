@@ -12,7 +12,7 @@
           <div class="card-body p-5">
             <form id="form" class="form-horizontal" method="post" action="<?= base_url('pengajuan/update') ?>">
               <!-- Hidden inputs -->
-              <input type="hidden" value="<?= $pengajuan['id'] ?>" name="id">
+              <input type="hidden" value="<?= $pengajuan['id'] ?>" id="official_trip_id" name="id">
               <input type="hidden" value="<?= $this->session->userdata('id') ?>" name="userid" id="userid" />
               <input type="hidden" value="<?= $this->session->userdata('area_id') ?>" name="area_id" id="areaid" />
               <input type="hidden" name="kode_pengajuan" id="kode_pengajuan" value="<?= $pengajuan['kode_pengajuan'] ?>">
@@ -44,13 +44,6 @@
                   <div class="form-group">
                     <label for="title">Jenis Agenda</label>
                     <input type="text" class="form-control" name="title" id="title" placeholder="Contoh : Visit Dinas Mingguan" value="<?= $pengajuan['title'] ?>" required>
-                  </div>
-                </div>
-                <!-- Total Amount-->
-                <div class="col col-sm-4 col-md-4 col-lg-4">
-                  <div class="form-group">
-                    <label for="title">Total Semua</label>
-                    <input type="text" class="form-control" name="total_amount" id="total_amount" placeholder="Total Pengajuan" value="<?= $pengajuan['total_amount'] ?>">
                   </div>
                 </div>
               </div>
@@ -86,7 +79,7 @@
                       <tfoot>
                         <tr>
                           <td colspan="5" class="text-center font-weight-bold">Total</td>
-                          <td colspan="4" class="font-weight-bold text-center"><span id="total"></span> </td>
+                          <td colspan="4" class="font-weight-bold text-center"><span id="total">RP. 0</span> </td>
                         </tr>
                       </tfoot>
                     </table>
@@ -157,13 +150,6 @@
   let uniqueTripDetailIds = [];
   let uniqueDestinationIds = [];
   let activityData = {};
-
-
-  $(function() {
-    // Set default values or perform any necessary operations on document ready
-    $("#request_date").val(moment().startOf("days").format("YYYY-MM-DD"));
-    $("#departure_date").val(moment().endOf("days").format("YYYY-MM-DD"));
-  });
 
   // Function to handle whitespace deletion
   function deleteWhiteSpace(uniqId) {
@@ -269,8 +255,8 @@
     // Event listeners and other operations on document ready
     const tripDetails = $("#tripdetails");
     const dataTripDetails = tripDetails.data("trip-details");
-    console.log("trip detail :", dataTripDetails)
 
+    // ON LOAD DATA TRIP DETAIL
     dataTripDetails.forEach((item, idx) => {
       let unique = createRandomString(10);
       uniqueTripDetailIds = [...uniqueTripDetailIds, unique];
@@ -291,16 +277,23 @@
                     <option value="YES" ${item.is_food == 'YES' ? "selected" : ''}>Ya</option>
                 </select>
             </td> 
-            <td><input type="number" placeholder="QTY" id="qty-${unique}" min="1" value="1" onkeyup="getTotalFromQty(this)" class="form-control" required value="${item.qty}"/></td> 
-            <td><input type="number" placeholder="Jumlah Hari" id="duration-${unique}" min="1" value="1" onkeyup="getTotalFromDuration(this)" class="form-control" required value="${item.duration}" /></td> 
+            <td><input type="number" placeholder="QTY" id="qty-${unique}" min="1" onkeyup="getTotalFromQty(this)" class="form-control" required value="${item.qty}"/></td> 
+            <td><input type="number" placeholder="Jumlah Hari" id="duration-${unique}" min="1" onkeyup="getTotalFromDuration(this)" class="form-control" required value="${item.duration}" /></td> 
             <td><input type="text" placeholder="Unit Price (IDR)" id="amount-${unique}"  onkeyup="getTotalFromAmount(this)" class="form-control" required value="${formatRupiah(item.amount, "Rp. ")}")}" /></td> 
             <td><input type="text" placeholder="Total Price (IDR)" id="total-amount-${unique}" disabled readonly class="form-control" required value="${formatRupiah(item.total_amount, "Rp. ")}")}"/></td>
             <td> <button type="button" id="${unique}" class="btn btn-danger remove-trip-detail">Hapus</button></td>
         </tr>`);
 
       setActivity(`activity-${unique}`, `${item.official_trip_activity_id}`);
-      
     })
+
+    // SET TOTAL NOMINAL ON LOAD DATA
+    let totalAmountDetail = 0;
+    uniqueTripDetailIds.forEach((uid) => {
+      let data = parseInt(($(`#total-amount-${uid}`).val()).replace(/[^0-9]/g, ""))
+      totalAmountDetail = parseInt(totalAmountDetail) +  parseInt(data ? data : 0);
+    })
+    $('#total').text(formatRupiah(totalAmountDetail.toString(), "Rp. "))
 
     // Event listener to add trip detail row
     $('#add-trip-detail').click(function() {
@@ -333,21 +326,11 @@
 
       // Delete whitespace on textarea
       deleteWhiteSpace(`description-${unique}`);
-
       // Update the number of list trip detail
       changeNumberTripDetail();
-
       // Get master data for activity
       setActivity(`activity-${unique}`);
-
-
-
-      // TRIP DESTINATION
-      const tripDestinations = $("#tripdestinations");
-      const dataTripDestinations = tripDestinations.data("trip-destinations");
-      console.log("trip destination :", dataTripDestinations)
     });
-
 
     // Event listener to remove trip detail row
     $(document).on('click', '.remove-trip-detail', function() {
@@ -357,6 +340,36 @@
 
       change(); // Update total price
       changeNumberTripDetail(); // Update number of list trip detail
+    });
+
+    /**TRIP DESTINATION */
+    const tripDestinations = $("#tripdestinations");
+    const dataTripDestinations = tripDestinations.data("trip-destinations");
+
+    // ON LOAD DATA TRIP DESTINATION
+    dataTripDestinations.forEach((item, idx) => {
+      let unique = createRandomString(10);
+      uniqueDestinationIds = [...uniqueDestinationIds, unique];
+
+      $('#trip-destination-table').append(`
+        <tr id="row-trip-destination-${unique}" class="tb_row"> 
+          <td><label id="no-${unique}">${idx + 1}</label></td>  
+          <td><input type="text" placeholder="Nama Dinas Tujuan" id="name-${unique}" class="form-control" required value="${item.name}" /></td>
+          <td><input type="text" placeholder="Kota / Kabupaten" id="destination-${unique}" class="form-control" required value="${item.destination}"/></td>
+          <td><input type="text" placeholder="Nomor Tiket" id="ticket-number-${unique}" class="form-control" value="${item.ticket_number}" /></td>
+          <td>
+            <textarea rows="3" cols="20" id="remark-${unique}" class="form-control" placeholder="Keterangan" required>
+              ${item.remark}
+            </textarea>
+          </td> 
+          <td> <button type="button" id="${unique}" class="btn btn-danger remove-trip-destination">Hapus</button></td>
+        </tr>`);
+
+      // DELETE WHITE SPACE ON THE TEXTAREA
+      deleteWhiteSpace(`remark-${unique}`);
+
+      // update NO of list destination
+      changeNumberTripDestination()
     });
 
     // Event listener to add trip destination row
@@ -438,6 +451,7 @@
     });
 
     // Collect other form data
+    let id = $("#official_trip_id").val();
     let request_date = $("#request_date").val();
     let departure_date = $("#departure_date").val();
     let title = $("#title").val();
@@ -446,6 +460,7 @@
 
     // Create payload for AJAX request
     const payload = {
+      id,
       request_date,
       departure_date,
       title,
@@ -460,7 +475,7 @@
       method: 'POST',
       cache: false,
       data: payload,
-      url: 'update', // Update URL to correct endpoint
+      url: '../update', // Update URL to correct endpoint
       success: function(data) {
         const redirectUrl = $('#url_pengajuan').val();
         window.location = `${redirectUrl}`;
@@ -470,7 +485,8 @@
         alert('An error occurred while processing your request.');
       }
     });
-    console.log("Payload to send:", JSON.stringify(payload, null, 2));
+
+    return false;
   });
 
   // Function to set food option when activity is selected as makan
@@ -526,13 +542,17 @@
     })
   }
 
-  // Function to update the number of trip detail list
+  // change text of number in list trip detail
   function changeNumberTripDetail() {
-    $("#no-trip-detail").text(uniqueTripDetailIds.length);
+    uniqueTripDetailIds.forEach((uid, i) => {
+      $(`#no-${uid}`).text(`${i + 1}`)
+    })
   }
 
-  // Function to update the number of destination list
+  // change text of number in list trip destination
   function changeNumberTripDestination() {
-    $("#no-trip-destination").text(uniqueDestinationIds.length);
+    uniqueDestinationIds.forEach((uid, i) => {
+      $(`#no-${uid}`).text(`${i + 1}`)
+    })
   }
 </script>

@@ -414,15 +414,6 @@ class Pengajuan extends CI_Controller
       );
       $this->Official_trip_detail_model->save($data);
     }
-
-    // Mengambil data persetujuan perjalanan dari form
-    $payloadOfficialTripApproval = array(
-      'official_trip_id' => $PengajuanId,
-      'user_id' => $userId,
-      'created_at' => date('Y-m-d H:i:s'),
-    );
-
-    $resultId = $this->Official_trip_approval_model->save($payloadOfficialTripApproval);
   }
   // update pengajuan
   public function update()
@@ -440,14 +431,21 @@ class Pengajuan extends CI_Controller
       // Ambil data dari inputan
       $idPengajuan = $this->input->post('id');
       $dataPengajuan = array(
-        'user_id' => $roleId == "1" ? $this->input->post('userid') : $userId,
-        'area_id' => $roleId == "1" ? $this->input->post('area_id') : $areaId,
-        'request_date' => date('Y-m-d'),
+        // 'user_id' => $roleId == "1" ? $this->input->post('userid') : $userId,
+        // 'area_id' => $roleId == "1" ? $this->input->post('area_id') : $areaId,
+        // 'request_date' => date('Y-m-d'), // request date jangan di update
         'departure_date' => $this->input->post('departure_date'),
         'destination' => $this->input->post('destination'),
         'title' => $this->input->post('title'),
-        'total_amount' => $this->input->post('total')
+        'total_amount' => $this->input->post('total_amount')
       );
+
+      // optional update user_id
+      // admin can update user_id of peminjaman
+      // if ($roleId == "1") {
+      //   $dataPengajuan["user_id"] = $this->input->post("user_id");
+      //   $dataPengajuan["ared_id"] = $this->input->post("area_id");
+      // }
 
       // Log data untuk debugging
       log_message('debug', 'Data Pengajuan: ' . json_encode($dataPengajuan));
@@ -502,8 +500,8 @@ class Pengajuan extends CI_Controller
         throw new Exception('Transaction failed.');
       }
 
-      // Redirect ke halaman pengajuan setelah berhasil menyimpan
-      redirect('pengajuan');
+      // // Redirect ke halaman pengajuan setelah berhasil menyimpan
+      // redirect('pengajuan');
     } catch (Exception $e) {
       // Rollback transaksi jika terjadi kesalahan
       $this->db->trans_rollback();

@@ -99,7 +99,7 @@
                         <tr>
                           <td colspan="5" class="text-center font-weight-bold">Total</td>
 
-                          <td class="font-weight-bold">Rp. <span id="total"></span> </td>
+                          <td class="font-weight-bold"><span id="total"></span> </td>
                           <td colspan="3"></td>
                         </tr>
                       </tfoot>
@@ -301,11 +301,9 @@
     uniqIds.forEach((uid) => {
       let data = parseInt(($(`#total-${uid}`).val()).replace(/[^0-9]/g, ""))
       total = parseInt(total) + parseInt(data ? data : 0);
-      total = formatRupiah(total.toString());
     })
 
-
-    $('#total').text(total)
+    $('#total').text(formatRupiah(total.toString(), "Rp. "))
 
 
     // remote barang

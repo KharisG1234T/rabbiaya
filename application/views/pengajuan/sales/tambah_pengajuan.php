@@ -309,8 +309,8 @@
           <td> <button type="button" id="${unique}" class="btn btn-danger remove-trip-detail">Hapus</button></td>
         </tr>`);
 
-        // DELETE WHITE SPACE ON THE TEXTAREA
-        deleteWhiteSpace(`description-${unique}`);
+      // DELETE WHITE SPACE ON THE TEXTAREA
+      deleteWhiteSpace(`description-${unique}`);
 
       // update NO of list trip detail
       changeNumberTripDetail()
