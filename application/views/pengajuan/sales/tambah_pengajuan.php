@@ -53,23 +53,23 @@
                     <table class="table table-bordered">
                       <thead>
                         <tr>
-                          <td>Nomor</td>
-                          <td>Kegiatan / Aktivitas</td>
-                          <td>Deskripsi</td>
-                          <td>Makan</td>
-                          <td>QTY</td>
-                          <td>Jumlah Hari</td>
-                          <td>Unit Price (IDR)</td>
-                          <td>Total Harga</td>
-                          <td>Action</td>
+                          <td style="width: 50px; text-align: center">Nomor</td>
+                          <td style="width: 200px; text-align: center">Kegiatan / Aktivitas</td>
+                          <td style="width: 300px; text-align: center">Deskripsi</td>
+                          <td style="width: 120px; text-align: center">Makan</td>
+                          <td style="width: 100px; text-align: center">QTY</td>
+                          <td style="width: 100px; text-align: center">Jumlah Hari</td>
+                          <td style="width: 200px; text-align: center">Unit Price (IDR)</td>
+                          <td style="width: 200px; text-align: center">Total Harga</td>
+                          <td style="width: 80px; text-align: center">Action</td>
                         </tr>
                       </thead>
                       <tbody id="official-trip-detail-table">
                         <tr class="tb_row">
-                          <td><label>1</label></td>
+                          <td style="text-align: center"><label>1</label></td>
                           <td><select class="form-control" id="activity-ikiuniqueyo" onchange="setFoodOption(this, 'ikiuniqueyo')" required></select>
                           <td>
-                            <textarea rows="3" cols="20" id="description-ikiuniqueyo" class="form-control" placeholder="Deskripsi" required>
+                            <textarea rows="3" cols="40" id="description-ikiuniqueyo" class="form-control" placeholder="Deskripsi" required>
                             </textarea>
                           </td>
                           <td>
@@ -78,8 +78,8 @@
                               <option value="YES">Ya</option>
                             </select>
                           </td>
-                          <td><input type="number" placeholder="QTY" id="qty-ikiuniqueyo" min="1" value="1" onkeyup="getTotalFromQty(this)" class="form-control" required /></td>
-                          <td><input type="number" placeholder="Jumlah Hari" id="duration-ikiuniqueyo" min="1" value="1" onkeyup="getTotalFromDuration(this)" class="form-control" required /></td>
+                          <td><input type="number" placeholder="QTY" id="qty-ikiuniqueyo" min="1" value="1" onkeyup="getTotalFromQty(this)" class="form-control" required style="width: 80px;" /></td>
+                          <td><input type="number" placeholder="Jumlah Hari" id="duration-ikiuniqueyo" min="1" value="1" onkeyup="getTotalFromDuration(this)" class="form-control" required style="width: 80px;" /></td>
                           <td><input type="text" placeholder="Unit Price (IDR)" id="amount-ikiuniqueyo" onkeyup="getTotalFromAmount(this)" class="form-control" required /></td>
                           <td><input type="text" placeholder="Total Price (IDR)" id="total-amount-ikiuniqueyo" disabled readonly class="form-control" required /></td>
                           <td><button type="button" id="add-trip-detail" class="btn btn- btn-success">Add <i class="fas fa-fw fa-plus"></i></button></td>
@@ -87,8 +87,8 @@
                       </tbody>
                       <tfoot>
                         <tr>
-                          <td colspan="5" class="text-center font-weight-bold">Total</td>
-                          <td colspan="4" class="font-weight-bold text-center">Rp. <span id="total"></span> </td>
+                          <td colspan="4" class="text-center font-weight-bold">Total</td>
+                          <td colspan="5" class="font-weight-bold text-center">Rp. <span id="total"></span> </td>
                         </tr>
                       </tfoot>
                     </table>
@@ -108,22 +108,25 @@
                     <table class="table table-bordered">
                       <thead>
                         <tr>
-                          <td>Nomor</td>
-                          <td>Nama Dinas</td>
-                          <td>Kota / Kabupaten</td>
-                          <td>Nomor Tiket</td>
-                          <td>Keterangan</td>
-                          <td>Action</td>
+                          <td style="text-align: center">Nomor</td>
+                          <td style="text-align: center">Nama Dinas</td>
+                          <td style="text-align: center">Kota / Kabupaten</td>
+                          <td style="text-align: center">Nomor Tiket</td>
+                          <td style="text-align: center">Keterangan</td>
+                          <td style="text-align: center">Action</td>
                         </tr>
                       </thead>
                       <tbody id="trip-destination-table">
                         <tr class="tb_row">
-                          <td><label>1</label></td>
-                          <td><input type="text" placeholder="Nama Dinas Tujuan" id="name-gaisoditiru" class="form-control" required /></td>
+                          <td style="text-align: center"><label>1</label></td>
+                         
+                          <td>
+                            <textarea rows="3" cols="30" id="name-gaisoditiru" class="form-control" placeholder="Nama Dinas Tujuan" required></textarea>
+                          </td>
                           <td><input type="text" placeholder="Kota / Kabupaten" id="destination-gaisoditiru" class="form-control" required /></td>
                           <td><input type="text" placeholder="Nomor Tiket Activity Chatbot" id="ticket-number-gaisoditiru" class="form-control" /></td>
                           <td>
-                            <textarea rows="3" cols="20" id="remark-gaisoditiru" class="form-control" placeholder="Contoh : Mencari Lead" required>
+                            <textarea rows="3" cols="30" id="remark-gaisoditiru" class="form-control" placeholder="Contoh : Mencari Lead" required>
                             </textarea>
                           </td>
                           <td><button type="button" id="add-trip-destination" class="btn btn- btn-success">Add <i class="fas fa-fw fa-plus"></i></button></td>
@@ -338,7 +341,7 @@
       $('#trip-destination-table').append(`
         <tr id="row-trip-destination-${unique}" class="tb_row"> 
           <td><label id="no-${unique}">${no}</label></td>  
-          <td><input type="text" placeholder="Nama Dinas Tujuan" id="name-${unique}" class="form-control" required /></td>
+          <td><textarea rows="3" cols="20" id="name-${unique}" class="form-control" placeholder="Nama Dinas Tujuan" required></textarea></td>
           <td><input type="text" placeholder="Kota / Kabupaten" id="destination-${unique}" class="form-control" required /></td>
           <td><input type="text" placeholder="Nomor Tiket" id="ticket-number-${unique}" class="form-control" /></td>
           <td>

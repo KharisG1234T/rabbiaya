@@ -41,25 +41,25 @@
                   <table class="table table-bordered">
                     <thead>
                       <tr>
-                        <th>Nomor</th>
-                        <th>Kegiatan / Aktivitas</th>
-                        <th>Deskripsi</th>
-                        <th>Makan</th>
-                        <th>QTY</th>
-                        <th>Jumlah Hari</th>
-                        <th>Unit Price (IDR)</th>
-                        <th>Total Harga</th>
+                        <th style="text-align: center;">Nomor</th>
+                        <th style="text-align: center;">Kegiatan / Aktivitas</th>
+                        <th style="text-align: center;">Deskripsi</th>
+                        <th style="text-align: center;">Makan</th>
+                        <th style="text-align: center;">QTY</th>
+                        <th style="text-align: center;">Jumlah Hari</th>
+                        <th style="text-align: center;">Harga</th>
+                        <th style="text-align: center;">Total Harga</th>
                       </tr>
                     </thead>
                     <tbody>
                       <?php foreach ($pengajuan['official_trip_detail'] as $index => $detail) : ?>
                         <tr>
-                          <td><?= $index + 1 ?></td>
-                          <td><?= $detail['activity']['name'] ?></td>
+                          <td style="width: 50px; text-align: center;"><?= $index + 1 ?></td>
+                          <td style="width: 200px;"><?= $detail['activity']['name'] ?></td>
                           <td style="width: 400px;"><?= $detail['remark'] ?></td>
-                          <td><?= $detail['is_food'] ?></td>
-                          <td><?= $detail['qty'] ?></td>
-                          <td><?= $detail['duration'] ?></td>
+                          <td style="width: 100px; text-align: center;"><?= $detail['is_food'] ?></td>
+                          <td style="width: 100px; text-align: center;"><?= $detail['qty'] ?></td>
+                          <td style="width: 115px; text-align: center;"><?= $detail['duration'] ?></td>
                           <td><?= number_format($detail['amount'], 0, ',', '.') ?></td>
                           <td><?= number_format($detail['total_amount'], 0, ',', '.') ?></td>
                         </tr>
@@ -67,7 +67,7 @@
                     </tbody>
                     <tfoot>
                       <tr>
-                        <td colspan="5" class="text-center font-weight-bold">Total</td>
+                        <td colspan="4" class="text-center font-weight-bold">Total</td>
                         <td colspan="4" class="font-weight-bold text-center">Rp. <?= number_format($pengajuan['total_amount'], 0, ',', '.') ?></td>
                       </tr>
                     </tfoot>
@@ -82,26 +82,26 @@
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-md-10 mr-auto">
+              <div class="col-md-11 mr-auto">
                 <div class="table-responsive">
                   <table class="table table-bordered">
                     <thead>
                       <tr>
-                        <th>Nomor</th>
-                        <th>Nama Dinas</th>
-                        <th>Kota / Kabupaten</th>
-                        <th>Nomor Tiket</th>
-                        <th>Keterangan</th>
+                        <th style="text-align: center;">Nomor</th>
+                        <th style="text-align: center;">Nama Dinas</th>
+                        <th style="text-align: center;">Kota / Kabupaten</th>
+                        <th style="text-align: center;">Nomor Tiket</th>
+                        <th style="text-align: center;">Keterangan</th>
                       </tr>
                     </thead>
                     <tbody>
                       <?php foreach ($pengajuan['official_trip_destination'] as $index => $destination) : ?>
                         <tr>
-                          <td><?= $index + 1 ?></td>
-                          <td><?= $destination['name'] ?></td>
-                          <td><?= $destination['destination'] ?></td>
-                          <td><?= $destination['ticket_number'] ?></td>
-                          <td><?= $destination['remark'] ?></td>
+                          <td style="width: 50px; text-align: center;"><?= $index + 1 ?></td>
+                          <td style="width: 400px;"><?= $destination['name'] ?></td>
+                          <td style="width: 300px;"><?= $destination['destination'] ?></td>
+                          <td style="width: 200px;"><?= $destination['ticket_number'] ?></td>
+                          <td style="width: 300px;"><?= $destination['remark'] ?></td>
                         </tr>
                       <?php endforeach; ?>
                     </tbody>

@@ -62,15 +62,15 @@
                       <!-- Table headers -->
                       <thead>
                         <tr>
-                          <td>Nomor</td>
-                          <td>Kegiatan / Aktivitas</td>
-                          <td>Deskripsi</td>
-                          <td>Makan</td>
-                          <td>QTY</td>
-                          <td>Jumlah Hari</td>
-                          <td>Unit Price (IDR)</td>
-                          <td>Total Harga</td>
-                          <td>Action</td>
+                          <td style="text-align: center;">Nomor</td>
+                          <td style="text-align: center;">Kegiatan / Aktivitas</td>
+                          <td style="text-align: center;">Deskripsi</td>
+                          <td style="text-align: center;">Makan</td>
+                          <td style="text-align: center;">QTY</td>
+                          <td style="text-align: center;">Jumlah Hari</td>
+                          <td style="text-align: center;">Unit Price (IDR)</td>
+                          <td style="text-align: center;">Total Harga</td>
+                          <td style="text-align: center;">Action</td>
                         </tr>
                       </thead>
                       <tbody id="trip-detail-body">
@@ -78,8 +78,8 @@
                       </tbody>
                       <tfoot>
                         <tr>
-                          <td colspan="5" class="text-center font-weight-bold">Total</td>
-                          <td colspan="4" class="font-weight-bold text-center"><span id="total">RP. 0</span> </td>
+                          <td colspan="4" class="text-center font-weight-bold">Total</td>
+                          <td colspan="5" class="font-weight-bold text-center"><span id="total">RP. 0</span> </td>
                         </tr>
                       </tfoot>
                     </table>
@@ -263,25 +263,25 @@
 
       $('#official-trip-detail-table').append(`
         <tr id="row-trip-detail-${unique}" class="tb_row"> 
-            <td><label id="no-${unique}">${idx + 1}</label></td>  
-            <td>
+            <td style="width: 50px; text-align: center;"><label id="no-${unique}">${idx + 1}</label></td>  
+            <td style="width: 200px;">
               <select class="form-control" id="activity-${unique}" onchange="setFoodOption(this, '${unique}')">
               </select>
             </td> 
-            <td>
+            <td style="width: 300px;">
                 <textarea rows="3" cols="20" id="description-${unique}" class="form-control" placeholder="Deskripsi" required>${item.remark}</textarea>
             </td> 
-            <td>
+            <td style="width: 120px;">
                 <select class="form-control" id="is-food-${unique}" readonly disabled>
                     <option value="NO" ${item.is_food == 'NO' ? 'selected' : ''}>Tidak</option>
                     <option value="YES" ${item.is_food == 'YES' ? "selected" : ''}>Ya</option>
                 </select>
             </td> 
-            <td><input type="number" placeholder="QTY" id="qty-${unique}" min="1" onkeyup="getTotalFromQty(this)" class="form-control" required value="${item.qty}"/></td> 
-            <td><input type="number" placeholder="Jumlah Hari" id="duration-${unique}" min="1" onkeyup="getTotalFromDuration(this)" class="form-control" required value="${item.duration}" /></td> 
-            <td><input type="text" placeholder="Unit Price (IDR)" id="amount-${unique}"  onkeyup="getTotalFromAmount(this)" class="form-control" required value="${formatRupiah(item.amount, "Rp. ")}")}" /></td> 
-            <td><input type="text" placeholder="Total Price (IDR)" id="total-amount-${unique}" disabled readonly class="form-control" required value="${formatRupiah(item.total_amount, "Rp. ")}")}"/></td>
-            <td> <button type="button" id="${unique}" class="btn btn-danger remove-trip-detail">Hapus</button></td>
+            <td style="width: 100px; text-align: center;"><input type="number" placeholder="QTY" id="qty-${unique}" min="1" onkeyup="getTotalFromQty(this)" class="form-control" required value="${item.qty}"/></td> 
+            <td style="width: 100px; text-align: center;"><input type="number" placeholder="Jumlah Hari" id="duration-${unique}" min="1" onkeyup="getTotalFromDuration(this)" class="form-control" required value="${item.duration}" /></td> 
+            <td style="width: 200px;"><input type="text" placeholder="Unit Price (IDR)" id="amount-${unique}"  onkeyup="getTotalFromAmount(this)" class="form-control" required value="${formatRupiah(item.amount, "Rp. ")}")}" /></td> 
+            <td style="width: 200px;"><input type="text" placeholder="Total Price (IDR)" id="total-amount-${unique}" disabled readonly class="form-control" required value="${formatRupiah(item.total_amount, "Rp. ")}")}"/></td>
+            <td style="width: 80px;"> <button type="button" id="${unique}" class="btn btn-danger remove-trip-detail">Hapus</button></td>
         </tr>`);
 
       setActivity(`activity-${unique}`, `${item.official_trip_activity_id}`);
@@ -303,25 +303,25 @@
 
       $('#official-trip-detail-table').append(`
         <tr id="row-trip-detail-${unique}" class="tb_row"> 
-            <td><label id="no-${unique}">${no}</label></td>  
-            <td>
+            <td style="width: 50px; text-align: center;"><label id="no-${unique}">${no}</label></td>  
+            <td style="width: 200px;">
               <select class="form-control" id="activity-${unique}" onchange="setFoodOption(this, '${unique}')">
               </select>
             </td> 
-            <td>
+            <td style="width: 300px;">
                 <textarea rows="3" cols="20" id="description-${unique}" class="form-control" placeholder="Deskripsi" required></textarea>
             </td> 
-            <td>
+            <td style="width: 120px;">
                 <select class="form-control" id="is-food-${unique}" readonly disabled>
                     <option value="NO">Tidak</option>
                     <option value="YES">Ya</option>
                 </select>
             </td> 
-            <td><input type="number" placeholder="QTY" id="qty-${unique}" min="1" value="1" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 
-            <td><input type="number" placeholder="Jumlah Hari" id="duration-${unique}" min="1" value="1" onkeyup="getTotalFromDuration(this)" class="form-control" required /></td> 
-            <td><input type="text" placeholder="Unit Price (IDR)" id="amount-${unique}"  onkeyup="getTotalFromAmount(this)" class="form-control" required /></td> 
-            <td><input type="text" placeholder="Total Price (IDR)" id="total-amount-${unique}" disabled readonly class="form-control" required /></td>
-            <td> <button type="button" id="${unique}" class="btn btn-danger remove-trip-detail">Hapus</button></td>
+            <td style="width: 100px;"><input type="number" placeholder="QTY" id="qty-${unique}" min="1" value="1" onkeyup="getTotalFromQty(this)" class="form-control" required /></td> 
+            <td style="width: 100px;"><input type="number" placeholder="Jumlah Hari" id="duration-${unique}" min="1" value="1" onkeyup="getTotalFromDuration(this)" class="form-control" required /></td> 
+            <td style="width: 200px;"><input type="text" placeholder="Unit Price (IDR)" id="amount-${unique}"  onkeyup="getTotalFromAmount(this)" class="form-control" required /></td> 
+            <td style="width: 200px;"><input type="text" placeholder="Total Price (IDR)" id="total-amount-${unique}" disabled readonly class="form-control" required /></td>
+            <td style="width: 80px;"> <button type="button" id="${unique}" class="btn btn-danger remove-trip-detail">Hapus</button></td>
         </tr>`);
 
       // Delete whitespace on textarea
@@ -353,8 +353,9 @@
 
       $('#trip-destination-table').append(`
         <tr id="row-trip-destination-${unique}" class="tb_row"> 
-          <td><label id="no-${unique}">${idx + 1}</label></td>  
-          <td><input type="text" placeholder="Nama Dinas Tujuan" id="name-${unique}" class="form-control" required value="${item.name}" /></td>
+          <td style="width: 50px; text-align: center;"><label id="no-${unique}">${idx + 1}</label></td>  
+          <td>
+          <textarea rows="3" cols="20" id="name-${unique}" class="form-control" placeholder="Nama Dinas Tujuan" required>${item.name}</textarea></td>
           <td><input type="text" placeholder="Kota / Kabupaten" id="destination-${unique}" class="form-control" required value="${item.destination}"/></td>
           <td><input type="text" placeholder="Nomor Tiket" id="ticket-number-${unique}" class="form-control" value="${item.ticket_number}" /></td>
           <td>
@@ -381,8 +382,8 @@
 
       $('#trip-destination-table').append(`
         <tr id="row-trip-destination-${unique}" class="tb_row"> 
-          <td><label id="no-${unique}">${no}</label></td>  
-          <td><input type="text" placeholder="Nama Dinas Tujuan" id="name-${unique}" class="form-control" required /></td>
+          <td style="width: 50px; text-align: center;"><label id="no-${unique}">${no}</label></td>  
+          <td><textarea rows="3" cols="20" id="name-${unique}" class="form-control" placeholder="Nama Dinas Tujuan" required></textarea></td>
           <td><input type="text" placeholder="Kota / Kabupaten" id="destination-${unique}" class="form-control" required /></td>
           <td><input type="text" placeholder="Nomor Tiket" id="ticket-number-${unique}" class="form-control" /></td>
           <td>
